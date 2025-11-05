@@ -7,20 +7,21 @@ Data is saved to disk and can be reloaded across sessions.
 """
 
 from langchain_community.document_loaders import DirectoryLoader
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_openai import AzureChatOpenAI, AzureOpenAIEmbeddings
 from langchain_chroma import Chroma
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from dotenv import load_dotenv
 import os
 
-from dotenv import load_dotenv
 load_dotenv(override=True)
 
 # Configuration
-CHROMA_DB_PATH = "./chroma_db"
+CHROMA_DB_PATH = "src/3. Retrieval Augmented Generation/02_vector_stores/chroma_db"
 COLLECTION_NAME = "scientists_bios"
+
 
 def check_existing_collection():
     """Check if ChromaDB collection already exists."""
@@ -29,8 +30,9 @@ def check_existing_collection():
         return True
     return False
 
+
 # Load and prepare documents
-loader = DirectoryLoader("data/scientists_bios")
+loader = DirectoryLoader("src/3. Retrieval Augmented Generation/02_vector_stores/data/scientists_bios")
 docs = loader.load()
 print(f"Loaded {len(docs)} documents")
 
@@ -43,7 +45,7 @@ chunks = text_splitter.split_documents(docs)
 print(f"Created {len(chunks)} chunks")
 
 # Create embeddings
-embeddings = OpenAIEmbeddings()
+embeddings = AzureOpenAIEmbeddings(model="text-embedding-3-small")
 
 # Create or load ChromaDB collection
 existing_db = check_existing_collection()
@@ -87,7 +89,7 @@ for i, (doc, score) in enumerate(similar_docs_with_scores, 1):
     print(f"{doc.page_content[:150]}...")
 
 # Create RAG chain
-llm = ChatOpenAI(model="gpt-5-nano")
+llm = AzureChatOpenAI(model="gpt-5-nano")
 
 prompt = ChatPromptTemplate.from_template("""
 You are an assistant for question-answering tasks.
@@ -103,10 +105,10 @@ Answer:
 """)
 
 chroma_rag_chain = (
-    {"context": retriever, "question": RunnablePassthrough()}
-    | prompt
-    | llm
-    | StrOutputParser()
+        {"context": retriever, "question": RunnablePassthrough()}
+        | prompt
+        | llm
+        | StrOutputParser()
 )
 
 # Demo questions
@@ -116,14 +118,13 @@ questions = [
     "What was Newton's contribution to mathematics?"
 ]
 
-
 for i, question in enumerate(questions, 1):
     print(f"\nQ{i}: {question}")
     print("-" * 40)
     response = chroma_rag_chain.invoke(question)
     print(f"A{i}: {response}")
 
-#================================================================================
+# ================================================================================
 # Load again to demonstrate persistence
 print("\n🔄 Reloading ChromaDB to demonstrate persistence...")
 chroma_store_reload = Chroma(
@@ -140,10 +141,10 @@ retriever_reload = chroma_store_reload.as_retriever(
 
 # create a RAG chain for the reloaded store
 chroma_rag_chain_reload = (
-    {"context": retriever_reload, "question": RunnablePassthrough()}
-    | prompt
-    | llm
-    | StrOutputParser()
+        {"context": retriever_reload, "question": RunnablePassthrough()}
+        | prompt
+        | llm
+        | StrOutputParser()
 )
 
 # Perform a RAG query
@@ -151,7 +152,7 @@ response_reload = chroma_rag_chain_reload.invoke(questions[0])
 print(f"\nAfter reload - Q1: {questions[0]}")
 print(f"A1: {response_reload}")
 
-#================================================================================
+# ================================================================================
 # Demonstrate ChromaDB features
 # Get collection info
 collection_info = chroma_store.get()

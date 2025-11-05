@@ -7,19 +7,20 @@ FAISS is optimized for speed and can handle large-scale similarity search effici
 """
 
 from langchain_community.document_loaders import DirectoryLoader
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_openai import AzureChatOpenAI, AzureOpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from dotenv import load_dotenv
 import os
 
-from dotenv import load_dotenv
 load_dotenv(override=True)
 
 # Configuration
-FAISS_INDEX_PATH = "./faiss_index"
+FAISS_INDEX_PATH = "src/3. Retrieval Augmented Generation/02_vector_stores/faiss_index"
+
 
 def check_existing_index():
     """Check if FAISS index already exists."""
@@ -28,9 +29,10 @@ def check_existing_index():
         return True
     return False
 
+
 # Load and prepare documents
 print("📚 Loading documents...")
-loader = DirectoryLoader("data/scientists_bios")
+loader = DirectoryLoader("src/3. Retrieval Augmented Generation/02_vector_stores/data/scientists_bios")
 docs = loader.load()
 print(f"Loaded {len(docs)} documents")
 
@@ -44,7 +46,7 @@ chunks = text_splitter.split_documents(docs)
 print(f"Created {len(chunks)} chunks")
 
 # Create embeddings
-embeddings = OpenAIEmbeddings()
+embeddings = AzureOpenAIEmbeddings(model="text-embedding-3-small")
 
 # Create or load FAISS index
 print("⚡ Setting up FAISS vector store...")
@@ -93,7 +95,7 @@ for i, (doc, score) in enumerate(similar_docs_with_scores, 1):
 
 # Create RAG chain
 print("\n🔗 Creating RAG chain with FAISS...")
-llm = ChatOpenAI(model="gpt-4o-mini")
+llm = AzureChatOpenAI(model="gpt-4o-mini")
 
 prompt = ChatPromptTemplate.from_template("""
 You are an assistant for question-answering tasks.
@@ -109,10 +111,10 @@ Answer:
 """)
 
 faiss_rag_chain = (
-    {"context": retriever, "question": RunnablePassthrough()}
-    | prompt
-    | llm
-    | StrOutputParser()
+        {"context": retriever, "question": RunnablePassthrough()}
+        | prompt
+        | llm
+        | StrOutputParser()
 )
 
 # Demo questions
@@ -122,9 +124,9 @@ questions = [
     "What programming concepts did Ada Lovelace pioneer?"
 ]
 
-print("\n" + "="*50)
+print("\n" + "=" * 50)
 print("FAISS HIGH-PERFORMANCE RAG DEMO")
-print("="*50)
+print("=" * 50)
 
 for i, question in enumerate(questions, 1):
     print(f"\nQ{i}: {question}")
@@ -133,9 +135,9 @@ for i, question in enumerate(questions, 1):
     print(f"A{i}: {response}")
 
 # Demonstrate FAISS capabilities
-print("\n" + "="*50)
+print("\n" + "=" * 50)
 print("FAISS FEATURES & PERFORMANCE")
-print("="*50)
+print("=" * 50)
 
 print(f"📊 Index contains {faiss_store.index.ntotal} vectors")
 print(f"🔢 Vector dimension: {faiss_store.index.d}")

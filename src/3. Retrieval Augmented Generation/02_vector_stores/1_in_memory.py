@@ -7,18 +7,18 @@ Perfect for development, testing, and small datasets where persistence isn't nee
 """
 
 from langchain_community.document_loaders import DirectoryLoader
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_openai import AzureChatOpenAI, AzureOpenAIEmbeddings
 from langchain_core.vectorstores import InMemoryVectorStore
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-
 from dotenv import load_dotenv
+
 load_dotenv(override=True)
 
 # Load and chunk documents
-loader = DirectoryLoader("data/scientists_bios")
+loader = DirectoryLoader("src/3. Retrieval Augmented Generation/02_vector_stores/data/scientists_bios")
 docs = loader.load()
 print(f"Loaded {len(docs)} documents")
 
@@ -31,7 +31,7 @@ chunks = text_splitter.split_documents(docs)
 print(f"Created {len(chunks)} chunks")
 
 # Create embeddings and in-memory vector store
-embeddings = OpenAIEmbeddings()
+embeddings = AzureOpenAIEmbeddings(model="text-embedding-3-small")
 in_memory_store = InMemoryVectorStore(embeddings)
 
 # Add documents to store
@@ -55,7 +55,7 @@ for i, doc in enumerate(similar_docs, 1):
 
 # Create RAG chain
 print("\n🔗 Creating RAG chain...")
-llm = ChatOpenAI(model="gpt-4o-mini")
+llm = AzureChatOpenAI(model="gpt-4o-mini")
 
 prompt = ChatPromptTemplate.from_template("""
 You are an assistant for question-answering tasks.
@@ -71,10 +71,10 @@ Answer:
 """)
 
 in_memory_rag_chain = (
-    {"context": retriever, "question": RunnablePassthrough()}
-    | prompt
-    | llm
-    | StrOutputParser()
+        {"context": retriever, "question": RunnablePassthrough()}
+        | prompt
+        | llm
+        | StrOutputParser()
 )
 
 # Demo questions
@@ -84,9 +84,9 @@ questions = [
     "What was Marie Curie's most important discovery?"
 ]
 
-print("\n" + "="*50)
+print("\n" + "=" * 50)
 print("IN-MEMORY VECTOR STORE RAG DEMO")
-print("="*50)
+print("=" * 50)
 
 for i, question in enumerate(questions, 1):
     print(f"\nQ{i}: {question}")
@@ -95,9 +95,9 @@ for i, question in enumerate(questions, 1):
     print(f"A{i}: {response}")
 
 # Demonstrate vector store properties
-print("\n" + "="*50)
+print("\n" + "=" * 50)
 print("IN-MEMORY STORE PROPERTIES")
-print("="*50)
+print("=" * 50)
 print("✅ Advantages:")
 print("  • Fast - no disk I/O overhead")
 print("  • Simple - no external dependencies")
