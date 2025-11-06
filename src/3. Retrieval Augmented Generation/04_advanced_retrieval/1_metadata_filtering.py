@@ -6,28 +6,30 @@ Demonstrates how metadata filtering enhances retrieval precision and relevance.
 Shows contextual retrieval strategies using document properties and attributes.
 """
 
-from langchain_community.document_loaders import DirectoryLoader
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
-from langchain_core.vectorstores import InMemoryVectorStore
-from langchain_core.prompts import ChatPromptTemplate
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 import os
 
 from dotenv import load_dotenv
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.document_loaders import DirectoryLoader
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.vectorstores import InMemoryVectorStore
+from langchain_openai import AzureChatOpenAI, AzureOpenAIEmbeddings
+
 load_dotenv(override=True)
 
 print("🎯 METADATA FILTERING DEMONSTRATION")
-print("="*50)
+print("=" * 50)
 
 # 1. Load Documents with Enhanced Metadata
 print("\n1️⃣ Loading documents with rich metadata:")
 
 # Load existing scientist documents
-data_dir = "data/scientists_bios"
+data_dir = "src/3. Retrieval Augmented Generation/04_advanced_retrieval/data/scientists_bios"
 loader = DirectoryLoader(data_dir, glob="*.txt")
 raw_documents = loader.load()
 
 print(f"   Loaded {len(raw_documents)} raw documents")
+
 
 # Enhanced metadata extraction
 def extract_enhanced_metadata(doc):
@@ -55,7 +57,8 @@ def extract_enhanced_metadata(doc):
             birth_death_info.update({
                 'birth_year': int(birth_year),
                 'death_year': int(death_year),
-                'century': f"{birth_year[:2]}th century" if birth_year.startswith('18') else f"{birth_year[:2]}th century",
+                'century': f"{birth_year[:2]}th century" if birth_year.startswith(
+                    '18') else f"{birth_year[:2]}th century",
                 'time_period': 'historical'
             })
 
@@ -87,6 +90,7 @@ def extract_enhanced_metadata(doc):
     doc.metadata.update(scientist_info)
     return doc
 
+
 # Apply enhanced metadata extraction
 enhanced_documents = []
 for doc in raw_documents:
@@ -115,7 +119,7 @@ chunks = text_splitter.split_documents(enhanced_documents)
 # Add chunk-specific metadata
 for i, chunk in enumerate(chunks):
     chunk.metadata.update({
-        'chunk_id': f"chunk_{i+1}",
+        'chunk_id': f"chunk_{i + 1}",
         'chunk_size': len(chunk.page_content),
         'chunk_position': 'start' if i < len(chunks) // 3 else 'middle' if i < 2 * len(chunks) // 3 else 'end'
     })
@@ -129,7 +133,7 @@ for key, value in sample_chunk.metadata.items():
 # 3. Create Vector Store with Rich Metadata
 print("\n3️⃣ Building vector store with metadata indexing:")
 
-embeddings = OpenAIEmbeddings()
+embeddings = AzureOpenAIEmbeddings(model="text-embedding-3-small")
 vector_store = InMemoryVectorStore(embeddings)
 vector_store.add_documents(documents=chunks)
 
@@ -138,10 +142,11 @@ print(f"   ✅ Indexed {len(chunks)} chunks with full metadata")
 # 4. Metadata Filtering Examples
 print("\n4️⃣ Metadata filtering demonstrations:")
 
+
 # Create filtered retrievers using custom search functions
 def search_with_field_filter(query, target_field, k=3):
     """Search with field filtering."""
-    all_results = vector_store.similarity_search(query, k=k*3)
+    all_results = vector_store.similarity_search(query, k=k * 3)
 
     filtered_results = []
     for result in all_results:
@@ -151,6 +156,7 @@ def search_with_field_filter(query, target_field, k=3):
             break
 
     return filtered_results
+
 
 # Example 1: Field-specific retrieval
 print("\n   🔬 Field-specific retrieval (Physics only):")
@@ -162,10 +168,12 @@ print(f"   Results: {len(physics_results)} physics-related chunks")
 for i, result in enumerate(physics_results):
     scientist = result.metadata['scientist_name']
     field = result.metadata['primary_field']
-    print(f"   {i+1}. {scientist} ({field}): {result.page_content[:100]}...")
+    print(f"   {i + 1}. {scientist} ({field}): {result.page_content[:100]}...")
 
 # Example 2: Time period filtering
 print("\n   📅 Historical period filtering (19th century):")
+
+
 def filter_by_century(documents, target_century="19th"):
     """Filter documents by birth century."""
     filtered = []
@@ -176,11 +184,12 @@ def filter_by_century(documents, target_century="19th"):
                 filtered.append(doc)
     return filtered
 
+
 # For demonstration, we'll create a custom search
 def search_with_time_filter(query, target_century="19th", k=3):
     """Search with time period filtering."""
     # Get all results first
-    all_results = vector_store.similarity_search(query, k=k*3)
+    all_results = vector_store.similarity_search(query, k=k * 3)
 
     # Filter by time period
     filtered_results = []
@@ -194,6 +203,7 @@ def search_with_time_filter(query, target_century="19th", k=3):
 
     return filtered_results
 
+
 time_query = "Who made important discoveries?"
 time_results = search_with_time_filter(time_query, "19th", k=3)
 print(f"   Query: {time_query}")
@@ -201,13 +211,15 @@ print(f"   Results: {len(time_results)} 19th century scientists")
 for i, result in enumerate(time_results):
     scientist = result.metadata['scientist_name']
     birth_year = result.metadata.get('birth_year', 'unknown')
-    print(f"   {i+1}. {scientist} (born {birth_year}): {result.page_content[:100]}...")
+    print(f"   {i + 1}. {scientist} (born {birth_year}): {result.page_content[:100]}...")
 
 # Example 3: Quality-based filtering
 print("\n   ⭐ Quality-based filtering (High completeness only):")
+
+
 def search_with_quality_filter(query, min_completeness="high", k=3):
     """Search with document quality filtering."""
-    all_results = vector_store.similarity_search(query, k=k*2)
+    all_results = vector_store.similarity_search(query, k=k * 2)
 
     filtered_results = []
     for result in all_results:
@@ -218,6 +230,7 @@ def search_with_quality_filter(query, min_completeness="high", k=3):
 
     return filtered_results
 
+
 quality_query = "Tell me about scientific achievements"
 quality_results = search_with_quality_filter(quality_query, "high", k=2)
 print(f"   Query: {quality_query}")
@@ -226,12 +239,13 @@ for i, result in enumerate(quality_results):
     scientist = result.metadata['scientist_name']
     completeness = result.metadata['completeness']
     word_count = result.metadata['word_count']
-    print(f"   {i+1}. {scientist} ({completeness}, {word_count} words): {result.page_content[:100]}...")
+    print(f"   {i + 1}. {scientist} ({completeness}, {word_count} words): {result.page_content[:100]}...")
 
 # 5. Contextual RAG with Metadata
 print("\n5️⃣ Building contextual RAG system:")
 
-llm = ChatOpenAI(model="gpt-5-nano")
+llm = AzureChatOpenAI(model="gpt-5-nano")
+
 
 # Smart retriever that uses context to determine filters
 def create_contextual_retriever(query, k=4):
@@ -265,6 +279,7 @@ def create_contextual_retriever(query, k=4):
     else:
         return vector_store.similarity_search(query, k=k)
 
+
 # Enhanced prompt that uses metadata
 contextual_prompt = ChatPromptTemplate.from_template("""
 You are an assistant for question-answering tasks about scientists and their contributions.
@@ -285,6 +300,7 @@ Context with metadata:
 Answer:
 """)
 
+
 def format_context_with_metadata(retrieved_docs):
     """Format retrieved documents with their metadata for the prompt."""
     formatted_context = []
@@ -295,12 +311,13 @@ def format_context_with_metadata(retrieved_docs):
         birth_year = metadata.get('birth_year', 'Unknown')
 
         context_entry = f"""
-Source {i+1}: {scientist} ({field}, born {birth_year})
+Source {i + 1}: {scientist} ({field}, born {birth_year})
 Content: {doc.page_content}
 """
         formatted_context.append(context_entry)
 
     return "\n".join(formatted_context)
+
 
 # Create contextual RAG chain
 def contextual_rag_chain(question):
@@ -320,6 +337,7 @@ def contextual_rag_chain(question):
     )
 
     return response.content, retrieved_docs
+
 
 # 6. Test Contextual RAG System
 print("\n6️⃣ Testing contextual RAG system:")
@@ -343,7 +361,7 @@ for i, question in enumerate(test_questions, 1):
         for j, source in enumerate(sources):
             scientist = source.metadata['scientist_name']
             field = source.metadata['primary_field']
-            print(f"      {j+1}. {scientist} ({field})")
+            print(f"      {j + 1}. {scientist} ({field})")
 
     except Exception as e:
         print(f"   A{i}: Error - {str(e)}")
@@ -370,7 +388,7 @@ for query, description in comparison_queries:
         scientist = result.metadata['scientist_name']
         field = result.metadata['primary_field']
         relevance_preview = result.page_content[:60] + "..."
-        print(f"      {i+1}. {scientist} ({field}): {relevance_preview}")
+        print(f"      {i + 1}. {scientist} ({field}): {relevance_preview}")
 
     # Contextually filtered results
     filtered_results = create_contextual_retriever(query, k=3)
@@ -379,7 +397,7 @@ for query, description in comparison_queries:
         scientist = result.metadata['scientist_name']
         field = result.metadata['primary_field']
         relevance_preview = result.page_content[:60] + "..."
-        print(f"      {i+1}. {scientist} ({field}): {relevance_preview}")
+        print(f"      {i + 1}. {scientist} ({field}): {relevance_preview}")
 
     # Show if filtering was applied
     unfiltered_scientists = {r.metadata['scientist_name'] for r in unfiltered_results}

@@ -17,6 +17,7 @@ langchain
 OllamaLLM
 ChatPromptTemplate
 
+RAGs
 AzureOpenAIEmbeddings, all available models
 InMemoryVectorStore
 DirectoryLoader
@@ -30,3 +31,7 @@ WebBaseLoader
 requests
 BeautifulSoup
 User-Agent with ordinary headers
+metadata_filtering (storing document/chunk embeddings with metadata for filtered retrieval)
+hybrid search (vector + BM25 + TF-IDF, combinations, adaptive)
+query expansion: by synonyms, context keywords, by llm (with approaches, contexts, context-aware)
+re-ranking of documents (by llms, by cross encoders such as MS-MARCO MiniLM and NLI Electra)

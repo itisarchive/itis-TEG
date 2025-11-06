@@ -6,24 +6,24 @@ Demonstrates automatic query expansion using LLMs, synonym generation,
 and multi-perspective query generation for improved retrieval quality.
 """
 
-from langchain_community.document_loaders import DirectoryLoader
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
-from langchain_core.vectorstores import InMemoryVectorStore
-from langchain_core.prompts import ChatPromptTemplate
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 import os
-import re
 
 from dotenv import load_dotenv
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.document_loaders import DirectoryLoader
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.vectorstores import InMemoryVectorStore
+from langchain_openai import AzureChatOpenAI, AzureOpenAIEmbeddings
+
 load_dotenv(override=True)
 
 print("🔍 QUERY EXPANSION DEMONSTRATION")
-print("="*50)
+print("=" * 50)
 
 # 1. Load and Prepare Documents
 print("\n1️⃣ Loading documents for query expansion:")
 
-data_dir = "data/scientists_bios"
+data_dir = "src/3. Retrieval Augmented Generation/04_advanced_retrieval/data/scientists_bios"
 loader = DirectoryLoader(data_dir, glob="*.txt")
 documents = loader.load()
 
@@ -42,7 +42,7 @@ chunks = text_splitter.split_documents(documents)
 print(f"   Loaded {len(documents)} documents, created {len(chunks)} chunks")
 
 # Build vector store
-embeddings = OpenAIEmbeddings()
+embeddings = AzureOpenAIEmbeddings(model="text-embedding-3-small")
 vector_store = InMemoryVectorStore(embeddings)
 vector_store.add_documents(documents=chunks)
 
@@ -50,6 +50,7 @@ print(f"   ✅ Vector store ready with {len(chunks)} indexed chunks")
 
 # 2. Basic Query Expansion Techniques
 print("\n2️⃣ Basic query expansion techniques:")
+
 
 def simple_synonym_expansion(query):
     """Simple synonym-based query expansion."""
@@ -72,6 +73,7 @@ def simple_synonym_expansion(query):
 
     return ' '.join(expanded_terms)
 
+
 def concept_expansion(query):
     """Expand query with related scientific concepts."""
     concept_map = {
@@ -93,6 +95,7 @@ def concept_expansion(query):
 
     return ' OR '.join(expanded_terms)
 
+
 # Test basic expansion
 test_query = "Einstein's important discoveries"
 print(f"\n   🔍 Original query: {test_query}")
@@ -102,7 +105,7 @@ print(f"   🧠 Concept expansion: {concept_expansion(test_query)}")
 # 3. LLM-Based Query Expansion
 print("\n3️⃣ LLM-based query expansion:")
 
-llm = ChatOpenAI(model="gpt-5-nano")
+llm = AzureChatOpenAI(model="gpt-5-nano")
 
 # Query expansion prompts
 expansion_prompt = ChatPromptTemplate.from_template("""
@@ -123,6 +126,7 @@ Synonym: [expanded query]
 Technical: [expanded query]
 Alternative: [expanded query]
 """)
+
 
 def llm_query_expansion(query):
     """Use LLM to generate expanded queries."""
@@ -145,6 +149,7 @@ def llm_query_expansion(query):
     except Exception as e:
         print(f"   ⚠️ LLM expansion failed: {e}")
         return {}
+
 
 # Test LLM expansion
 test_queries = [
@@ -178,6 +183,7 @@ Technical: [query]
 Impact: [query]
 """)
 
+
 def generate_multi_perspective_queries(query):
     """Generate queries from different perspectives."""
     try:
@@ -198,6 +204,7 @@ def generate_multi_perspective_queries(query):
     except Exception as e:
         print(f"   ⚠️ Perspective generation failed: {e}")
         return {}
+
 
 # Test multi-perspective generation
 perspective_topics = [
@@ -230,6 +237,7 @@ Generate an expanded query that:
 Expanded query:
 """)
 
+
 def context_aware_expansion(query):
     """Expand query with domain-specific context."""
     try:
@@ -238,6 +246,7 @@ def context_aware_expansion(query):
     except Exception as e:
         print(f"   ⚠️ Context expansion failed: {e}")
         return query
+
 
 # Test context-aware expansion
 context_queries = [
@@ -254,6 +263,7 @@ for query in context_queries:
 
 # 6. Query Expansion Pipeline
 print("\n6️⃣ Query expansion pipeline:")
+
 
 def query_expansion_pipeline(query, methods=['llm', 'synonym', 'context']):
     """Complete query expansion pipeline."""
@@ -279,6 +289,7 @@ def query_expansion_pipeline(query, methods=['llm', 'synonym', 'context']):
 
     return expansions
 
+
 # Test expansion pipeline
 pipeline_query = "scientific discoveries"
 print(f"\n   🔍 Pipeline test query: {pipeline_query}")
@@ -293,6 +304,7 @@ for expansion_type, expanded_query in all_expansions.items():
 
 # 7. Retrieval with Query Expansion
 print("\n7️⃣ Retrieval comparison with query expansion:")
+
 
 def search_with_expansion(query, expansion_methods=['original'], k=3):
     """Search using different query expansion methods."""
@@ -310,6 +322,7 @@ def search_with_expansion(query, expansion_methods=['original'], k=3):
 
     return all_results
 
+
 # Test retrieval with different expansions
 retrieval_query = "Newton's work"
 print(f"\n   🔍 Retrieval test query: {retrieval_query}")
@@ -324,7 +337,7 @@ for method, results in expansion_results.items():
     for i, (doc, score) in enumerate(results):
         scientist = doc.metadata['scientist_name']
         preview = doc.page_content[:60] + "..."
-        print(f"      {i+1}. {scientist} (score: {score:.3f}): {preview}")
+        print(f"      {i + 1}. {scientist} (score: {score:.3f}): {preview}")
 
 # 8. Expanded Query RAG System
 print("\n8️⃣ Building expanded query RAG system:")
@@ -345,6 +358,7 @@ Use three sentences maximum and keep the answer concise.
 Answer:
 """)
 
+
 def expanded_rag_chain(query, expansion_method='context'):
     """RAG chain using query expansion."""
     # Generate expansions
@@ -360,7 +374,7 @@ def expanded_rag_chain(query, expansion_method='context'):
     context_parts = []
     for i, doc in enumerate(results):
         scientist = doc.metadata['scientist_name']
-        context_parts.append(f"Source {i+1} ({scientist}): {doc.page_content}")
+        context_parts.append(f"Source {i + 1} ({scientist}): {doc.page_content}")
 
     context = "\n\n".join(context_parts)
 
@@ -374,6 +388,7 @@ def expanded_rag_chain(query, expansion_method='context'):
     )
 
     return response.content, expanded_query, results
+
 
 # 9. Test Expanded RAG System
 print("\n9️⃣ Testing expanded RAG system:")
@@ -397,7 +412,7 @@ for i, question in enumerate(test_questions, 1):
                 context_parts = []
                 for j, doc in enumerate(results):
                     scientist = doc.metadata['scientist_name']
-                    context_parts.append(f"Source {j+1} ({scientist}): {doc.page_content}")
+                    context_parts.append(f"Source {j + 1} ({scientist}): {doc.page_content}")
                 context = "\n\n".join(context_parts)
 
                 response = llm.invoke(
@@ -423,6 +438,7 @@ for i, question in enumerate(test_questions, 1):
 
 # 10. Expansion Effectiveness Analysis
 print("\n🔟 Query expansion effectiveness analysis:")
+
 
 def analyze_expansion_effectiveness(queries, methods):
     """Analyze how different expansion methods affect retrieval."""
@@ -455,6 +471,7 @@ def analyze_expansion_effectiveness(queries, methods):
         results_analysis[query] = query_results
 
     return results_analysis
+
 
 # Analyze expansion effectiveness
 analysis_queries = ["scientific work", "important discoveries", "physics research"]

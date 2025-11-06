@@ -6,27 +6,28 @@ Demonstrates combining semantic similarity with keyword search for improved retr
 Shows BM25 + vector search fusion, query routing, and score combination strategies.
 """
 
-from langchain_community.document_loaders import DirectoryLoader
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
-from langchain_core.vectorstores import InMemoryVectorStore
-from langchain_core.prompts import ChatPromptTemplate
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from rank_bm25 import BM25Okapi
-import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
 import os
 
+import numpy as np
 from dotenv import load_dotenv
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.document_loaders import DirectoryLoader
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.vectorstores import InMemoryVectorStore
+from langchain_openai import AzureChatOpenAI, AzureOpenAIEmbeddings
+from rank_bm25 import BM25Okapi
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
 load_dotenv(override=True)
 
 print("🔀 HYBRID SEARCH DEMONSTRATION")
-print("="*50)
+print("=" * 50)
 
 # 1. Load and Prepare Documents
 print("\n1️⃣ Loading documents for hybrid search:")
 
-data_dir = "data/scientists_bios"
+data_dir = "src/3. Retrieval Augmented Generation/04_advanced_retrieval/data/scientists_bios"
 loader = DirectoryLoader(data_dir, glob="*.txt")
 documents = loader.load()
 
@@ -53,7 +54,7 @@ print(f"   Created {len(chunks)} chunks for hybrid search")
 print("\n2️⃣ Building multiple search indexes:")
 
 # Vector search setup
-embeddings = OpenAIEmbeddings()
+embeddings = AzureOpenAIEmbeddings(model="text-embedding-3-small")
 vector_store = InMemoryVectorStore(embeddings)
 vector_store.add_documents(documents=chunks)
 print(f"   ✅ Vector store: {len(chunks)} chunks embedded")
@@ -76,10 +77,12 @@ print(f"   ✅ TF-IDF index: {tfidf_matrix.shape[1]} features extracted")
 # 3. Individual Search Methods
 print("\n3️⃣ Testing individual search methods:")
 
+
 def vector_search(query, k=5):
     """Semantic similarity search using embeddings."""
     results = vector_store.similarity_search_with_score(query, k=k)
     return [(doc, score) for doc, score in results]
+
 
 def bm25_search(query, k=5):
     """Keyword search using BM25."""
@@ -96,6 +99,7 @@ def bm25_search(query, k=5):
 
     return results
 
+
 def tfidf_search(query, k=5):
     """TF-IDF based keyword search."""
     query_vec = tfidf_vectorizer.transform([query])
@@ -110,6 +114,7 @@ def tfidf_search(query, k=5):
 
     return results
 
+
 # Test each method
 test_query = "What did Einstein discover about light and energy?"
 print(f"\n   🔍 Test query: {test_query}")
@@ -119,24 +124,25 @@ vector_results = vector_search(test_query, k=3)
 for i, (doc, score) in enumerate(vector_results):
     scientist = doc.metadata['scientist_name']
     preview = doc.page_content[:80] + "..."
-    print(f"      {i+1}. {scientist} (score: {score:.3f}): {preview}")
+    print(f"      {i + 1}. {scientist} (score: {score:.3f}): {preview}")
 
 print(f"\n   🔤 BM25 search results:")
 bm25_results = bm25_search(test_query, k=3)
 for i, (doc, score) in enumerate(bm25_results):
     scientist = doc.metadata['scientist_name']
     preview = doc.page_content[:80] + "..."
-    print(f"      {i+1}. {scientist} (score: {score:.3f}): {preview}")
+    print(f"      {i + 1}. {scientist} (score: {score:.3f}): {preview}")
 
 print(f"\n   📊 TF-IDF search results:")
 tfidf_results = tfidf_search(test_query, k=3)
 for i, (doc, score) in enumerate(tfidf_results):
     scientist = doc.metadata['scientist_name']
     preview = doc.page_content[:80] + "..."
-    print(f"      {i+1}. {scientist} (score: {score:.3f}): {preview}")
+    print(f"      {i + 1}. {scientist} (score: {score:.3f}): {preview}")
 
 # 4. Query Analysis and Routing
 print("\n4️⃣ Query analysis and routing:")
+
 
 def analyze_query(query):
     """Analyze query to determine optimal search strategy."""
@@ -179,6 +185,7 @@ def analyze_query(query):
 
     return analysis
 
+
 # Test query analysis
 test_queries = [
     "What did Einstein discover?",
@@ -197,6 +204,7 @@ for query in test_queries:
 # 5. Score Fusion Strategies
 print("\n5️⃣ Score fusion strategies:")
 
+
 def normalize_scores(scores, method='min_max'):
     """Normalize scores to 0-1 range."""
     scores = np.array(scores)
@@ -209,6 +217,7 @@ def normalize_scores(scores, method='min_max'):
         if std > 0:
             return (scores - mean) / std
     return scores
+
 
 def reciprocal_rank_fusion(results_list, k=60):
     """Combine rankings using Reciprocal Rank Fusion."""
@@ -224,6 +233,7 @@ def reciprocal_rank_fusion(results_list, k=60):
     # Sort by combined score
     sorted_results = sorted(doc_scores.values(), key=lambda x: x['score'], reverse=True)
     return [(item['doc'], item['score']) for item in sorted_results]
+
 
 def weighted_score_fusion(vector_results, keyword_results, vector_weight=0.6):
     """Combine results using weighted score fusion."""
@@ -261,13 +271,14 @@ def weighted_score_fusion(vector_results, keyword_results, vector_weight=0.6):
     # Calculate combined scores
     for doc_id in doc_scores:
         doc_scores[doc_id]['combined_score'] = (
-            vector_weight * doc_scores[doc_id]['vector_score'] +
-            (1 - vector_weight) * doc_scores[doc_id]['keyword_score']
+                vector_weight * doc_scores[doc_id]['vector_score'] +
+                (1 - vector_weight) * doc_scores[doc_id]['keyword_score']
         )
 
     # Sort by combined score
     sorted_results = sorted(doc_scores.values(), key=lambda x: x['combined_score'], reverse=True)
     return [(item['doc'], item['combined_score']) for item in sorted_results]
+
 
 # Test fusion strategies
 fusion_query = "Einstein's theory of relativity and light"
@@ -281,25 +292,26 @@ rrf_results = reciprocal_rank_fusion([vector_results, bm25_results])
 for i, (doc, score) in enumerate(rrf_results[:3]):
     scientist = doc.metadata['scientist_name']
     preview = doc.page_content[:60] + "..."
-    print(f"      {i+1}. {scientist} (RRF: {score:.3f}): {preview}")
+    print(f"      {i + 1}. {scientist} (RRF: {score:.3f}): {preview}")
 
 print(f"\n   ⚖️ Weighted Score Fusion (60% vector, 40% keyword):")
 wsf_results = weighted_score_fusion(vector_results, bm25_results, vector_weight=0.6)
 for i, (doc, score) in enumerate(wsf_results[:3]):
     scientist = doc.metadata['scientist_name']
     preview = doc.page_content[:60] + "..."
-    print(f"      {i+1}. {scientist} (WSF: {score:.3f}): {preview}")
+    print(f"      {i + 1}. {scientist} (WSF: {score:.3f}): {preview}")
 
 # 6. Adaptive Hybrid Search
 print("\n6️⃣ Adaptive hybrid search:")
+
 
 def adaptive_hybrid_search(query, k=5):
     """Adaptive search that adjusts strategy based on query analysis."""
     analysis = analyze_query(query)
 
     # Get results from both methods
-    vector_results = vector_search(query, k=k*2)
-    bm25_results = bm25_search(query, k=k*2)
+    vector_results = vector_search(query, k=k * 2)
+    bm25_results = bm25_search(query, k=k * 2)
 
     # Adjust weights based on query type
     if analysis['recommended_strategy'] == 'semantic_heavy':
@@ -312,6 +324,7 @@ def adaptive_hybrid_search(query, k=5):
     # Use weighted fusion
     results = weighted_score_fusion(vector_results, bm25_results, vector_weight)
     return results[:k], analysis
+
 
 # Test adaptive search
 adaptive_queries = [
@@ -329,12 +342,12 @@ for query in adaptive_queries:
     for i, (doc, score) in enumerate(results):
         scientist = doc.metadata['scientist_name']
         preview = doc.page_content[:70] + "..."
-        print(f"      {i+1}. {scientist} (score: {score:.3f}): {preview}")
+        print(f"      {i + 1}. {scientist} (score: {score:.3f}): {preview}")
 
 # 7. Hybrid RAG System
 print("\n7️⃣ Building hybrid RAG system:")
 
-llm = ChatOpenAI(model="gpt-5-nano")
+llm = AzureChatOpenAI(model="gpt-5-nano")
 
 hybrid_prompt = ChatPromptTemplate.from_template("""
 You are an assistant for question-answering tasks about scientists and their contributions.
@@ -351,6 +364,7 @@ Context: {context}
 Answer:
 """)
 
+
 def hybrid_rag_chain(question):
     """RAG chain using adaptive hybrid search."""
     # Get hybrid search results
@@ -360,7 +374,7 @@ def hybrid_rag_chain(question):
     context_parts = []
     for i, (doc, score) in enumerate(results):
         scientist = doc.metadata['scientist_name']
-        context_parts.append(f"Source {i+1} ({scientist}): {doc.page_content}")
+        context_parts.append(f"Source {i + 1} ({scientist}): {doc.page_content}")
 
     context = "\n\n".join(context_parts)
 
@@ -370,6 +384,7 @@ def hybrid_rag_chain(question):
     )
 
     return response.content, results, analysis
+
 
 # 8. Test Hybrid RAG
 print("\n8️⃣ Testing hybrid RAG system:")
@@ -392,7 +407,7 @@ for i, question in enumerate(test_questions, 1):
         print(f"   📚 Sources ({len(sources)} documents):")
         for j, (source, score) in enumerate(sources):
             scientist = source.metadata['scientist_name']
-            print(f"      {j+1}. {scientist} (score: {score:.3f})")
+            print(f"      {j + 1}. {scientist} (score: {score:.3f})")
 
     except Exception as e:
         print(f"   A{i}: Error - {str(e)}")
