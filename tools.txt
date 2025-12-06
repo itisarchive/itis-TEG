@@ -35,3 +35,4 @@ metadata_filtering (storing document/chunk embeddings with metadata for filtered
 hybrid search (vector + BM25 + TF-IDF, combinations, adaptive)
 query expansion: by synonyms, context keywords, by llm (with approaches, contexts, context-aware)
 re-ranking of documents (by llms, by cross encoders such as MS-MARCO MiniLM and NLI Electra)
+RAGAS (using expert LLM to generate expert truths, evaluating RAG using another LLM)
