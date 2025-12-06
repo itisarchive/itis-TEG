@@ -1,8 +1,8 @@
 from dotenv import load_dotenv
+
 load_dotenv(override=True)
 
 import os
-from pathlib import Path
 from langchain_community.document_loaders import DirectoryLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_openai import ChatOpenAI
@@ -17,6 +17,7 @@ from rag_systems import (
 from evaluation import RAGEvaluator
 from config import settings
 
+
 def load_and_chunk(data_dir):
     """Load and chunk documents for all RAG systems."""
     loader = DirectoryLoader(data_dir, glob="*.txt")
@@ -27,10 +28,11 @@ def load_and_chunk(data_dir):
     )
     return splitter.split_documents(docs)
 
+
 def main():
-    print("="*80)
+    print("=" * 80)
     print("MULTI-RAG SYSTEM COMPARATIVE EVALUATION")
-    print("="*80)
+    print("=" * 80)
 
     # Validate environment
     if not os.getenv("OPENAI_API_KEY"):
@@ -127,6 +129,7 @@ def main():
 
     except Exception as e:
         print(f"❌ Failed to process results: {e}")
+
 
 if __name__ == "__main__":
     main()

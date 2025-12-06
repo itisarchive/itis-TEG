@@ -1,11 +1,12 @@
 from dotenv import load_dotenv
+
 load_dotenv(override=True)
 
 import os
 import json
 from pathlib import Path
 from langchain_community.document_loaders import DirectoryLoader
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_openai import AzureChatOpenAI, AzureOpenAIEmbeddings
 from langchain_core.vectorstores import InMemoryVectorStore
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
@@ -16,14 +17,16 @@ from ragas.metrics import ContextPrecision, ContextRecall, Faithfulness, AnswerR
 from ragas.llms import LangchainLLMWrapper
 from ragas.dataset_schema import SingleTurnSample
 
+
 def load_and_chunk(data_dir):
     loader = DirectoryLoader(data_dir, glob="*.txt")
     docs = loader.load()
     splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
     return splitter.split_documents(docs)
 
+
 def build_rag_system(chunks):
-    embeddings = OpenAIEmbeddings()
+    embeddings = AzureOpenAIEmbeddings(model="text-embedding-3-small")
     vector_store = InMemoryVectorStore(embeddings)
     vector_store.add_documents(documents=chunks)
 
@@ -32,7 +35,7 @@ def build_rag_system(chunks):
         search_kwargs={"k": 3}
     )
 
-    llm = ChatOpenAI(model="gpt-4o-mini")
+    llm = AzureChatOpenAI(model="gpt-4o-mini")
 
     prompt = ChatPromptTemplate.from_template("""
 You are an assistant for question-answering tasks.
@@ -48,13 +51,14 @@ Answer:
 """)
 
     rag_chain = (
-        {"context": retriever, "question": RunnablePassthrough()}
-        | prompt
-        | llm
-        | StrOutputParser()
+            {"context": retriever, "question": RunnablePassthrough()}
+            | prompt
+            | llm
+            | StrOutputParser()
     )
 
     return rag_chain, retriever
+
 
 def generate_ground_truths(questions, data_dir, expert_llm):
     loader = DirectoryLoader(data_dir, glob="*.txt")
@@ -75,16 +79,17 @@ Provide a detailed, factually accurate answer:"""
         ground_truths.append(expert_llm.invoke(prompt).content)
     return ground_truths
 
+
 if not os.getenv("OPENAI_API_KEY"):
     raise ValueError("OPENAI_API_KEY not found in environment")
 
-data_dir = "data/scientists_bios"
+data_dir = "src/3. Retrieval Augmented Generation/04_advanced_retrieval/data/scientists_bios"
 if not os.path.exists(data_dir):
     raise FileNotFoundError(f"Data directory not found: {data_dir}")
 
 chunks = load_and_chunk(data_dir)
 rag_chain, retriever = build_rag_system(chunks)
-expert_llm = ChatOpenAI(model="gpt-5")
+expert_llm = AzureChatOpenAI(model="gpt-5-mini")
 
 questions = [
     "What did Marie Curie win Nobel Prizes for?",
@@ -94,7 +99,7 @@ questions = [
     "What was Ada Lovelace's contribution to computing?"
 ]
 
-output_dir = Path("data")
+output_dir = Path("src/3. Retrieval Augmented Generation/04_advanced_retrieval/data")
 output_file = output_dir / "ground_truth_dataset.json"
 
 if output_file.exists():
@@ -125,7 +130,7 @@ for q, gt in zip(questions, ground_truths):
 
 eval_dataset = EvaluationDataset(samples=samples)
 
-evaluator_llm = LangchainLLMWrapper(ChatOpenAI(model="gpt-4.1", temperature=0))
+evaluator_llm = LangchainLLMWrapper(AzureChatOpenAI(model="gpt-4.1", temperature=0))
 metrics = [
     ContextPrecision(llm=evaluator_llm),
     ContextRecall(llm=evaluator_llm),
