@@ -9,13 +9,14 @@ CRITICAL: No fallbacks, no mock data. All dependencies must be available.
 """
 
 from dotenv import load_dotenv
+
 load_dotenv(override=True)
 
 import os
 import json
 import random
 import toml
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 from faker import Faker
 from typing import List
 from langchain_openai import ChatOpenAI
@@ -218,7 +219,7 @@ class GraphRAGDataGenerator:
                     })
 
             project = {
-                "id": f"PRJ-{i+1:03d}",
+                "id": f"PRJ-{i + 1:03d}",
                 "name": f"{random.choice(project_types)} for {random.choice(clients)}",
                 "client": random.choice(clients),
                 "description": f"Development of {random.choice(project_types).lower()} with focus on scalability and performance",
@@ -264,7 +265,8 @@ class GraphRAGDataGenerator:
 
             for assignment in assignments:
                 assign_start = datetime.fromisoformat(assignment['assignment_start_date']).date()
-                assign_end = datetime.fromisoformat(assignment['assignment_end_date']).date() if assignment['assignment_end_date'] else None
+                assign_end = datetime.fromisoformat(assignment['assignment_end_date']).date() if assignment[
+                    'assignment_end_date'] else None
 
                 # Check for overlap
                 if assign_end is None:  # Ongoing assignment
@@ -435,7 +437,7 @@ class GraphRAGDataGenerator:
                 })
 
             rfp = {
-                "id": f"RFP-{i+1:03d}",
+                "id": f"RFP-{i + 1:03d}",
                 "title": f"{random.choice(rfp_types)} Development",
                 "client": random.choice(clients),
                 "description": f"Seeking experienced development team for {random.choice(rfp_types).lower()}",
@@ -458,9 +460,11 @@ class GraphRAGDataGenerator:
         # Format requirements for the prompt
         requirements_text = []
         for req in rfp['requirements']:
-            cert_text = f" (Preferred certifications: {', '.join(req['preferred_certifications'])})" if req['preferred_certifications'] else ""
+            cert_text = f" (Preferred certifications: {', '.join(req['preferred_certifications'])})" if req[
+                'preferred_certifications'] else ""
             mandatory_text = "REQUIRED" if req['is_mandatory'] else "Preferred"
-            requirements_text.append(f"- {mandatory_text}: {req['skill_name']} - {req['min_proficiency']} level{cert_text}")
+            requirements_text.append(
+                f"- {mandatory_text}: {req['skill_name']} - {req['min_proficiency']} level{cert_text}")
 
         prompt = f"""
 Create a professional RFP (Request for Proposal) document in markdown format with the following details:

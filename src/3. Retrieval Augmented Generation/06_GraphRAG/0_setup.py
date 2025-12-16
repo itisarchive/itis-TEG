@@ -14,6 +14,7 @@ Usage:
 """
 
 from dotenv import load_dotenv
+
 load_dotenv(override=True)
 
 import os
@@ -216,6 +217,7 @@ class Neo4jStatusChecker:
             logger.error(f"Error clearing database: {e}")
             return False
 
+
 class SetupMode(Enum):
     INTERACTIVE = "interactive"
     FRESH = "fresh"
@@ -223,6 +225,7 @@ class SetupMode(Enum):
     CHECK = "check"
     LEARNING = "learning"
     INIT = "init"
+
 
 class GraphRAGSetup:
     """Main setup class for GraphRAG educational system."""
@@ -814,6 +817,7 @@ Files:
         print("\n📦 Loading sample data...")
         return self.run_script("1_generate_data.py")
 
+
 def parse_arguments():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(
@@ -831,15 +835,15 @@ Examples:
     )
 
     parser.add_argument('--init', action='store_true',
-                       help='Initialize Neo4j and project structure only')
+                        help='Initialize Neo4j and project structure only')
     parser.add_argument('--fresh', action='store_true',
-                       help='Force fresh setup (clears existing data)')
+                        help='Force fresh setup (clears existing data)')
     parser.add_argument('--continue', action='store_true', dest='continue_mode',
-                       help='Continue with existing data')
+                        help='Continue with existing data')
     parser.add_argument('--check', action='store_true',
-                       help='Check status only')
+                        help='Check status only')
     parser.add_argument('--learning', action='store_true',
-                       help='Enable educational explanations')
+                        help='Enable educational explanations')
 
     args = parser.parse_args()
 
@@ -859,6 +863,7 @@ Examples:
 
     return mode, args.learning
 
+
 def main():
     """Main entry point."""
     try:
@@ -875,6 +880,7 @@ def main():
     except Exception as e:
         print(f"\n❌ Unexpected error: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

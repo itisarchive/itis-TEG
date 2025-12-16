@@ -9,6 +9,7 @@ This creates the static knowledge base for programmer staffing GraphRAG system.
 """
 
 from dotenv import load_dotenv
+
 load_dotenv(override=True)
 
 import os
@@ -277,7 +278,7 @@ class DataKnowledgeGraphBuilder:
             self.graph.add_graph_documents(
                 graph_documents,
                 baseEntityLabel=True,  # Add base Entity label for indexing
-                include_source=True    # Include source documents for RAG
+                include_source=True  # Include source documents for RAG
             )
 
             # Calculate and log statistics

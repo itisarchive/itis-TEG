@@ -8,6 +8,7 @@ to demonstrate the advantages of graph-based retrieval for structured queries.
 """
 
 from dotenv import load_dotenv
+
 load_dotenv(override=True)
 
 import json
@@ -15,7 +16,7 @@ import time
 import asyncio
 import importlib.util
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 from datetime import datetime
 import logging
 import toml
@@ -24,6 +25,7 @@ import os
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 
 class SystemComparator:
     """Compares GraphRAG, Naive RAG, and Ground Truth systems."""
@@ -280,7 +282,7 @@ class SystemComparator:
             category = ground_truth_item["category"]
             ground_truth_answer = ground_truth_item["ground_truth_answer"]
 
-            logger.info(f"\n[{i+1}/{len(questions)}] Processing: {question[:50]}...")
+            logger.info(f"\n[{i + 1}/{len(questions)}] Processing: {question[:50]}...")
 
             # Run GraphRAG query
             logger.info("  Running GraphRAG...")
@@ -451,9 +453,12 @@ class SystemComparator:
             question = result["question"][:50] + "..." if len(result["question"]) > 50 else result["question"]
             category = result["category"]
 
-            graph_answer = result["graphrag"]["answer"][:30] + "..." if len(result["graphrag"]["answer"]) > 30 else result["graphrag"]["answer"]
-            naive_answer = result["naive_rag"]["answer"][:30] + "..." if len(result["naive_rag"]["answer"]) > 30 else result["naive_rag"]["answer"]
-            ground_truth = result["ground_truth"][:30] + "..." if len(result["ground_truth"]) > 30 else result["ground_truth"]
+            graph_answer = result["graphrag"]["answer"][:30] + "..." if len(result["graphrag"]["answer"]) > 30 else \
+            result["graphrag"]["answer"]
+            naive_answer = result["naive_rag"]["answer"][:30] + "..." if len(result["naive_rag"]["answer"]) > 30 else \
+            result["naive_rag"]["answer"]
+            ground_truth = result["ground_truth"][:30] + "..." if len(result["ground_truth"]) > 30 else result[
+                "ground_truth"]
 
             graph_score = result["graphrag"]["evaluation"]["quality_score"]
             naive_score = result["naive_rag"]["evaluation"]["quality_score"]
@@ -471,7 +476,8 @@ class SystemComparator:
             naive_answer = naive_answer.replace("|", "\\|")
             ground_truth = ground_truth.replace("|", "\\|")
 
-            table_lines.append(f"| {idx} | {question} | {category} | {graph_answer} | {naive_answer} | {ground_truth} | {winner} |")
+            table_lines.append(
+                f"| {idx} | {question} | {category} | {graph_answer} | {naive_answer} | {ground_truth} | {winner} |")
 
         return "\n".join(table_lines)
 
@@ -479,9 +485,9 @@ class SystemComparator:
         """Display comparison results."""
         summary = comparison_data["summary"]
 
-        print("\n" + "="*80)
+        print("\n" + "=" * 80)
         print("GRAPHRAG vs NAIVE RAG COMPARISON RESULTS")
-        print("="*80)
+        print("=" * 80)
 
         print(f"\n📊 OVERALL PERFORMANCE:")
         print(f"GraphRAG Wins: {summary['overall_performance']['graphrag_wins']}")
@@ -519,14 +525,14 @@ async def main():
         print("\n✅ CV data found successfully!")
 
         # Step 1: Ground Truth (handled automatically by SystemComparator)
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("STEP 1: Load/Generate Ground Truth using GPT-5")
-        print("="*60)
+        print("=" * 60)
 
         # Step 2: System Initialization and Comparison
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("STEP 2: Run Complete System Comparison")
-        print("="*60)
+        print("=" * 60)
 
         # Run full comparison
         print("\nStarting comprehensive comparison...")
@@ -545,9 +551,9 @@ async def main():
         comparator.display_results(comparison_data)
 
         # Final results summary
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("🎉 COMPARISON WORKFLOW COMPLETED SUCCESSFULLY!")
-        print("="*60)
+        print("=" * 60)
 
         print("\n📁 Generated Files:")
         results_dir = Path("results")

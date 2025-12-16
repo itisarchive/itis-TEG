@@ -9,13 +9,14 @@ the limitations of naive RAG for structured queries.
 """
 
 from dotenv import load_dotenv
+
 load_dotenv(override=True)
 
 import os
 import json
 import time
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 import logging
 import toml
 
@@ -30,6 +31,7 @@ from langchain_core.output_parsers import StrOutputParser
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 
 class NaiveRAGSystem:
     """Traditional RAG system using vector similarity search."""
@@ -174,10 +176,10 @@ Context from CVs:
             return "\n\n".join(doc.page_content for doc in docs)
 
         self.rag_chain = (
-            {"context": self.retriever | format_docs, "question": RunnablePassthrough()}
-            | prompt
-            | self.llm
-            | StrOutputParser()
+                {"context": self.retriever | format_docs, "question": RunnablePassthrough()}
+                | prompt
+                | self.llm
+                | StrOutputParser()
         )
 
         logger.info("✓ RAG chain configured")
@@ -207,7 +209,8 @@ Context from CVs:
                     "chunk_index": i,
                     "source_file": doc.metadata.get("source_file", "unknown"),
                     "person_name": doc.metadata.get("person_name", "unknown"),
-                    "content_preview": doc.page_content[:200] + "..." if len(doc.page_content) > 200 else doc.page_content
+                    "content_preview": doc.page_content[:200] + "..." if len(
+                        doc.page_content) > 200 else doc.page_content
                 })
 
             result = {
@@ -338,7 +341,7 @@ def test_naive_rag_system():
     results = []
 
     for i, query in enumerate(test_queries):
-        print(f"\n[{i+1}/{len(test_queries)}] Query: {query}")
+        print(f"\n[{i + 1}/{len(test_queries)}] Query: {query}")
         print("-" * 40)
 
         result = rag_system.query(query)

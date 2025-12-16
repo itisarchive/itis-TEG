@@ -9,6 +9,7 @@ Shows advantages of structured graph queries over traditional RAG.
 """
 
 from dotenv import load_dotenv
+
 load_dotenv(override=True)
 
 import os
@@ -280,9 +281,9 @@ Helpful Answer:"""
                 logger.warning(f"Category '{cat}' not found")
                 continue
 
-            print(f"\n{'='*60}")
+            print(f"\n{'=' * 60}")
             print(f"Category: {cat}")
-            print(f"{'='*60}")
+            print(f"{'=' * 60}")
 
             for question in self.example_queries[cat]:
                 print(f"\n🔍 Query: {question}")
@@ -449,7 +450,8 @@ Helpful Answer:"""
 
             # Get relationship types
             try:
-                rel_result = self.graph.query("CALL db.relationshipTypes() YIELD relationshipType RETURN relationshipType ORDER BY relationshipType")
+                rel_result = self.graph.query(
+                    "CALL db.relationshipTypes() YIELD relationshipType RETURN relationshipType ORDER BY relationshipType")
                 rel_types = [row["relationshipType"] for row in rel_result]
             except:
                 # Fallback method
