@@ -44,3 +44,10 @@ Neo4jGraph
 graph db with ontology
 GraphCypherQAChain
 
+Chains and graphs
+AnyMessage, HumanMessage
+langgraph (StateGraph, START, END, MessagesState, add_messages, tools_condition, ToolNode)
+WikipediaLoader
+TavilySearchResults
+pydantic (BaseModel)
+graph with parallel processes, decision making, map-reduce

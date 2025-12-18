@@ -14,8 +14,9 @@ Required environment variables:
 - TAVILY_API_KEY: API key for Tavily (web search engine)
 """
 
-from dotenv import load_dotenv
 import os
+
+from dotenv import load_dotenv
 
 load_dotenv(override=True)
 
@@ -24,7 +25,6 @@ from typing import Annotated, TypedDict, Any
 from langgraph.graph import StateGraph, START, END
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage
-from langchain_core.runnables.graph import MermaidDrawMethod
 from langchain_community.document_loaders import WikipediaLoader
 from langchain_community.tools.tavily_search import TavilySearchResults
 
@@ -44,9 +44,11 @@ print("=== PART 1: SIMPLE ASYNCHRONOUS PROCESS ===")
 print("Nodes introduce themselves and add their name to a single list")
 print()
 
+
 # State definition for simple example
 class SimpleState(TypedDict):
     state: Annotated[list, operator.add]
+
 
 class ReturnNodeValue:
     """Class representing a node that adds its value to the state"""
@@ -57,6 +59,7 @@ class ReturnNodeValue:
     def __call__(self, state: SimpleState) -> Any:
         print(f"Adding {self._value} to {state['state']}")
         return {"state": [self._value]}
+
 
 # Creating graph for simple example
 simple_builder = StateGraph(SimpleState)
@@ -87,11 +90,13 @@ print("=== PART 2: PARALLEL PROCESSING WITH LLM ===")
 print("System answers questions using two sources: Internet (Tavily) and Wikipedia")
 print()
 
+
 # State definition for search example
 class SearchState(TypedDict):
     question: str
     answer: str
     context: Annotated[list, operator.add]
+
 
 def search_web(state):
     """Search internet resources using Tavily"""
@@ -111,6 +116,7 @@ def search_web(state):
     )
 
     return {"context": [formatted_search_docs]}
+
 
 def search_wikipedia(state):
     """Search Wikipedia resources"""
@@ -132,6 +138,7 @@ def search_wikipedia(state):
     )
 
     return {"context": [formatted_search_docs]}
+
 
 def generate_answer(state):
     """Generate answer based on collected context"""
@@ -155,6 +162,7 @@ def generate_answer(state):
 
     return {"answer": answer}
 
+
 # Creating search graph
 search_builder = StateGraph(SearchState)
 
@@ -164,8 +172,8 @@ search_builder.add_node("search_wikipedia", search_wikipedia)
 search_builder.add_node("generate_answer", generate_answer)
 
 # Flow definition - searches run in parallel
-search_builder.add_edge(START, "search_wikipedia")    # parallel execution
-search_builder.add_edge(START, "search_internet")     # parallel execution
+search_builder.add_edge(START, "search_wikipedia")  # parallel execution
+search_builder.add_edge(START, "search_internet")  # parallel execution
 search_builder.add_edge("search_wikipedia", "generate_answer")
 search_builder.add_edge("search_internet", "generate_answer")
 search_builder.add_edge("generate_answer", END)

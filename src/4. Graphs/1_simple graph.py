@@ -4,25 +4,26 @@
 # Required environment variables:
 # - OPENAI_API_KEY: Your OpenAI API key for language model access
 
-from dotenv import load_dotenv
 import os
 import random
-import nest_asyncio
 from typing import Literal, Annotated
 
-# Third-party imports
-from typing_extensions import TypedDict
+import nest_asyncio
+from dotenv import load_dotenv
+from langchain_core.messages import AnyMessage, HumanMessage
 from langchain_openai import ChatOpenAI
-from langchain_core.messages import AnyMessage, HumanMessage, SystemMessage
 from langgraph.graph import StateGraph, START, END, MessagesState
 from langgraph.graph.message import add_messages
 from langgraph.prebuilt import tools_condition, ToolNode
+# Third-party imports
+from typing_extensions import TypedDict
 
 # Load environment variables
 load_dotenv(override=True)
 
 # Apply nest_asyncio for Jupyter compatibility (if needed)
 nest_asyncio.apply()
+
 
 # ===== PART 1: GRAPHS AS SEQUENCES OF ACTIONS =====
 # Graphs are sequences of actions, like steps in a process.
@@ -35,6 +36,7 @@ nest_asyncio.apply()
 class State(TypedDict):
     graph_state: str
 
+
 # ===== NODES =====
 # Nodes are where functions change the state of the graph.
 # Starting with elementary functions.
@@ -43,13 +45,16 @@ def node_1(state):
     print("--- Node 1 ---")
     return {"graph_state": state['graph_state'] + " I am"}
 
+
 def node_2(state):
     print("--- Node 2 ---")
     return {"graph_state": state['graph_state'] + " happy :)"}
 
+
 def node_3(state):
     print("--- Node 3 ---")
     return {"graph_state": state['graph_state'] + " sad :("}
+
 
 # ===== EDGES =====
 # Nodes are connected through edges that define task flow.
@@ -70,6 +75,7 @@ def mood_decision(state) -> Literal["Node_2", "Node_3"]:
 
     # 50% chance to choose Node_3
     return "Node_3"
+
 
 # ===== GRAPH CONSTRUCTION =====
 # Design and create our simple graph
@@ -100,6 +106,7 @@ print(f"Final result: {result}")
 api_key = os.getenv('OPENAI_API_KEY')
 llm = ChatOpenAI(model="gpt-4o-mini", api_key=api_key)
 
+
 # Message state for handling conversation history
 class MessagesState(TypedDict):
     messages: Annotated[list[AnyMessage], add_messages]
@@ -108,6 +115,7 @@ class MessagesState(TypedDict):
 def pure_llm(state: MessagesState):
     """Node that processes messages through the language model"""
     return {"messages": [llm.invoke(state["messages"])]}
+
 
 # Build graph
 builder = StateGraph(MessagesState)
