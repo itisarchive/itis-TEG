@@ -19,14 +19,14 @@ Key concepts:
 """
 
 from dotenv import load_dotenv
-from typing import Literal
-from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_openai import ChatOpenAI
 from langgraph.graph import StateGraph, START, END, MessagesState
 from langgraph.prebuilt import tools_condition, ToolNode
 
 # Load environment variables
 load_dotenv(override=True)
+
 
 # ================================
 # UTILITY FUNCTIONS
@@ -39,6 +39,7 @@ def initialize_llm():
         temperature=0,
         streaming=False
     )
+
 
 # ================================
 # TOOL DEFINITIONS
@@ -58,6 +59,7 @@ def multiply(a: int, b: int) -> int:
     print(f"🔢 Executing multiply: {a} × {b}")
     return a * b
 
+
 def add(a: int, b: int) -> int:
     """
     Add two numbers together.
@@ -71,6 +73,7 @@ def add(a: int, b: int) -> int:
     """
     print(f"➕ Executing add: {a} + {b}")
     return a + b
+
 
 def divide(a: int, b: int) -> float:
     """
@@ -88,6 +91,7 @@ def divide(a: int, b: int) -> float:
 
     print(f"➗ Executing divide: {a} ÷ {b}")
     return a / b
+
 
 # ================================
 # EXAMPLE 1: BASIC LLM (NO TOOLS)
@@ -108,6 +112,7 @@ def create_basic_llm_graph():
     builder.add_edge("llm", END)
 
     return builder.compile()
+
 
 # ================================
 # EXAMPLE 2: TOOL-AWARE LLM (NO EXECUTION)
@@ -143,6 +148,7 @@ def create_tool_aware_graph():
     builder.add_edge("llm_with_tools", END)
 
     return builder.compile()
+
 
 # ================================
 # EXAMPLE 3: FULL TOOL EXECUTOR GRAPH
@@ -201,6 +207,7 @@ def create_tool_executor_graph():
 
     return builder.compile()
 
+
 # ================================
 # DEMONSTRATION AND TESTING
 # ================================
@@ -219,6 +226,7 @@ def run_basic_llm_example():
     result = graph.invoke({"messages": [HumanMessage(content=question)]})
     print(f"Response: {result['messages'][-1].content}")
     print("Note: Without tools, the LLM can only provide estimates or explanations\n")
+
 
 def run_tool_aware_example():
     """Demonstrate tool-aware LLM that generates but doesn't execute tool calls"""
@@ -246,6 +254,7 @@ def run_tool_aware_example():
             print(f"Result: {final_message.content}")
         print("-" * 30)
 
+
 def run_tool_executor_example():
     """Demonstrate full tool executor graph with ReAct pattern"""
     print("=" * 50)
@@ -270,6 +279,7 @@ def run_tool_executor_example():
         print(f"Total messages in conversation: {len(result['messages'])}")
         print("-" * 40)
 
+
 def analyze_graph_behavior():
     """Analyze and compare the different graph implementations"""
     print("=" * 50)
@@ -291,6 +301,7 @@ def analyze_graph_behavior():
     print("• Act: LLM decides which tools to use")
     print("• Observe: System executes tools and returns results")
     print("• Repeat: Continue until task is complete")
+
 
 if __name__ == "__main__":
     print("Graph-Based Agent Demonstration")

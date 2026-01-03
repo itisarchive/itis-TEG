@@ -51,3 +51,23 @@ WikipediaLoader
 TavilySearchResults
 pydantic (BaseModel)
 graph with parallel processes, decision making, map-reduce
+
+agents & function calling
+forcing function call
+langchain tools
+tool decorator
+langchain agent, create_tool_calling_agent, executor
+create_react_agent
+langgraph.checkpoint.memory, MemorySaver
+ToolNodes in graphs
+WikipediaQueryRun
+TavilySearchResults
+WikipediaAPIWrapper
+arxiv
+langchain_community.agent_toolkits.load_tools
+langgraph_supervisor
+Langgraph CLI
+moving configuration&prompts to config files
+refactoring of system to modularize and generalize code
+Google A2A Protocol
+Standalone agents (ex. in Docker)

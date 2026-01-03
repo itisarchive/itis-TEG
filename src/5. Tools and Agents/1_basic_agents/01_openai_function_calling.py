@@ -16,9 +16,9 @@ Key learning points:
 """
 
 import json
-import os
-from openai import OpenAI
+
 from dotenv import load_dotenv
+from openai import OpenAI
 
 # ================================
 # SETUP AND CONFIGURATION
@@ -26,6 +26,7 @@ from dotenv import load_dotenv
 
 load_dotenv(override=True)
 client = OpenAI()
+
 
 # ================================
 # FUNCTION DEFINITIONS
@@ -44,11 +45,13 @@ def get_current_weather(location, unit="fahrenheit"):
     }
     return json.dumps(weather_info)
 
+
 def calculate_power(base, exponent):
     """
     Simple math function for demonstration.
     """
     return base ** exponent
+
 
 # Function schemas that OpenAI understands
 functions = [

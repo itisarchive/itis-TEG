@@ -1,18 +1,16 @@
 import os
 
-from langchain_openai import ChatOpenAI
-from langgraph.prebuilt import create_react_agent
-from langchain_community.tools.tavily_search import TavilySearchResults
-from langchain_community.agent_toolkits.load_tools import load_tools
-from langchain_community.tools import WikipediaQueryRun
-from langchain_community.utilities import WikipediaAPIWrapper
-
-from langchain_core.tools import tool
-
-from langgraph_supervisor import create_supervisor
-
 # Load environment variables
 from dotenv import load_dotenv
+from langchain_community.agent_toolkits.load_tools import load_tools
+from langchain_community.tools import WikipediaQueryRun
+from langchain_community.tools.tavily_search import TavilySearchResults
+from langchain_community.utilities import WikipediaAPIWrapper
+from langchain_core.tools import tool
+from langchain_openai import ChatOpenAI
+from langgraph.prebuilt import create_react_agent
+from langgraph_supervisor import create_supervisor
+
 load_dotenv(override=True)
 
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
@@ -23,6 +21,7 @@ tavily = TavilySearchResults(max_results=5)
 weather = load_tools(["openweathermap-api"])[0]
 wikipedia = WikipediaQueryRun(api_wrapper=WikipediaAPIWrapper())
 arxiv = load_tools(["arxiv"])[0]
+
 
 @tool
 def multiply(a: int, b: int) -> int:
@@ -35,6 +34,7 @@ def multiply(a: int, b: int) -> int:
     print("Multiplying", a, b)
     return a * b
 
+
 @tool
 def add(a: int, b: int) -> int:
     """Add a and b.
@@ -44,6 +44,7 @@ def add(a: int, b: int) -> int:
     """
     print("Adding", a, b)
     return a + b
+
 
 @tool
 def subtract(a: int, b: int) -> int:
@@ -55,6 +56,7 @@ def subtract(a: int, b: int) -> int:
     print("Subtracting", a, b)
     return a - b
 
+
 @tool
 def divide(a: int, b: int) -> int:
     """Divide a and b.
@@ -65,6 +67,7 @@ def divide(a: int, b: int) -> int:
     print("Dividing", a, b)
     return a / b
 
+
 @tool
 def power(a: int, b: int) -> int:
     """Power a and b.
@@ -74,6 +77,7 @@ def power(a: int, b: int) -> int:
     """
     print("Powering", a, b)
     return a ** b
+
 
 llm = ChatOpenAI(
     model="gpt-4o-mini",

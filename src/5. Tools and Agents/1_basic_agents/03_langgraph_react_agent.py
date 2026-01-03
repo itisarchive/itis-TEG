@@ -15,11 +15,10 @@ Key learning points:
 - LangGraph handles the reasoning → action → observation cycle automatically
 """
 
-import os
+from dotenv import load_dotenv
+from langchain_core.tools import tool
 from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
-from langchain_core.tools import tool
-from dotenv import load_dotenv
 
 # ================================
 # SETUP AND CONFIGURATION
@@ -29,6 +28,7 @@ load_dotenv(override=True)
 
 # Initialize the language model
 llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+
 
 # ================================
 # TOOL DEFINITIONS
@@ -46,6 +46,7 @@ def multiply(a: int, b: int) -> int:
     print(f"🔢 Computing: {a} × {b}")
     return a * b
 
+
 @tool
 def add(a: int, b: int) -> int:
     """
@@ -57,6 +58,7 @@ def add(a: int, b: int) -> int:
     """
     print(f"➕ Computing: {a} + {b}")
     return a + b
+
 
 @tool
 def power(a: int, b: int) -> int:
@@ -70,6 +72,7 @@ def power(a: int, b: int) -> int:
     print(f"⚡ Computing: {a}^{b}")
     return a ** b
 
+
 @tool
 def get_word_length(word: str) -> int:
     """
@@ -80,6 +83,7 @@ def get_word_length(word: str) -> int:
     """
     print(f"📏 Measuring word: '{word}'")
     return len(word)
+
 
 # ================================
 # AGENT CREATION

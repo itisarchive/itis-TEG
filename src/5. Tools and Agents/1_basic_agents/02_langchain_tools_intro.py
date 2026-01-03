@@ -16,12 +16,12 @@ Key learning points:
 """
 
 import json
-import os
-from langchain_openai import ChatOpenAI
-from langchain_core.tools import tool
+
+from dotenv import load_dotenv
 from langchain import hub
 from langchain.agents import AgentExecutor, create_tool_calling_agent
-from dotenv import load_dotenv
+from langchain_core.tools import tool
+from langchain_openai import ChatOpenAI
 
 # ================================
 # SETUP AND CONFIGURATION
@@ -29,6 +29,7 @@ from dotenv import load_dotenv
 
 load_dotenv(override=True)
 model = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+
 
 # ================================
 # LANGCHAIN TOOL DEFINITIONS
@@ -51,6 +52,7 @@ def get_current_weather(location: str, unit: str = "fahrenheit") -> str:
     }
     return json.dumps(weather_info)
 
+
 @tool
 def multiply(a: int, b: int) -> int:
     """
@@ -63,6 +65,7 @@ def multiply(a: int, b: int) -> int:
     print(f"Multiplying {a} × {b} = {a * b}")
     return a * b
 
+
 @tool
 def add(a: int, b: int) -> int:
     """
@@ -74,6 +77,7 @@ def add(a: int, b: int) -> int:
     """
     print(f"Adding {a} + {b} = {a + b}")
     return a + b
+
 
 # ================================
 # EXAMPLE 1: BASIC TOOL USAGE (MANUAL)
