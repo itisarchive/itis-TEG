@@ -1,24 +1,18 @@
 #!/usr/bin/env python3
 """
-Streamlit Chatbot Application
+🤖 Streamlit Chatbot — Azure OpenAI
+====================================
 
-This script creates a simple chatbot web application using Streamlit and OpenAI.
+A simple chatbot web application built with **Streamlit** and **Azure OpenAI**.
 The chatbot acts as a polite academic teacher answering questions in hip-hop style.
 
-Required environment variables:
-- OPENAI_API_KEY: Your OpenAI API key
+Required environment variables (see .env.example):
+    AZURE_OPENAI_ENDPOINT  – your Azure OpenAI resource URL
+    AZURE_OPENAI_API_KEY   – your Azure OpenAI API key
+    OPENAI_API_VERSION     – API version, e.g. "2025-04-01-preview"
 
-To run the application:
-1. Install dependencies: pip install streamlit openai python-dotenv
-2. Set your OPENAI_API_KEY in .env file
-3. Run: streamlit run 4_Your_own_chatbot.py
-4. Open browser to the displayed URL (usually http://localhost:8501)
-
-For public access (optional):
-1. Install localtunnel: npm install -g localtunnel
-2. Run the app: streamlit run 5. Your\ own\ chatbot.py
-3. In another terminal: npx localtunnel --port 8501
-4. Use the generated URL for public access
+Run:
+    streamlit run 2_Your_own_chatbot.py
 """
 
 import os
@@ -27,104 +21,101 @@ import streamlit as st
 from dotenv import load_dotenv
 from openai import AzureOpenAI
 
-# Load environment variables from .env file
 load_dotenv(override=True)
 
+SYSTEM_PROMPT = "You are a polite academic teacher answering students' questions in a hip-hop style"
+AVAILABLE_MODELS: list[str] = ["gpt-4o-mini", "gpt-4o", "gpt-35-turbo"]
+DEFAULT_MODEL = AVAILABLE_MODELS[0]
 
-def initialize_client():
-    """Initialize OpenAI client with API key from environment"""
-    api_key = os.getenv('AZURE_OPENAI_API_KEY')
-    if not api_key:
-        st.error("AZURE_OPENAI_API_KEY environment variable is required")
+
+def create_azure_openai_client() -> AzureOpenAI:
+    """Create an AzureOpenAI client using environment variables.
+
+    The SDK reads AZURE_OPENAI_API_KEY, AZURE_OPENAI_ENDPOINT and
+    OPENAI_API_VERSION from the environment automatically.
+    """
+    required_env_vars = ("AZURE_OPENAI_API_KEY", "AZURE_OPENAI_ENDPOINT", "OPENAI_API_VERSION")
+    missing = [var for var in required_env_vars if not os.getenv(var)]
+    if missing:
+        st.error(f"Missing required environment variables: {', '.join(missing)}")
         st.stop()
 
-    return AzureOpenAI(api_key=api_key)
+    return AzureOpenAI()
 
 
-"""Main Streamlit application"""
+def build_initial_messages() -> list[dict[str, str]]:
+    return [{"role": "system", "content": SYSTEM_PROMPT}]
 
-# Page configuration
+
+def render_sidebar() -> None:
+    with st.sidebar:
+        st.header("Settings")
+
+        selected_model = st.selectbox(
+            label="Choose Model:",
+            options=AVAILABLE_MODELS,
+            index=0,
+        )
+        st.session_state["selected_model"] = selected_model
+
+        if st.button("Clear Chat History"):
+            st.session_state["chat_history"] = build_initial_messages()
+            st.rerun()
+
+        st.info("💡 **Tip**: This chatbot combines academic knowledge with hip-hop flair!")
+
+
+def display_chat_history() -> None:
+    for chat_message in st.session_state["chat_history"]:
+        if chat_message["role"] == "system":
+            continue
+        with st.chat_message(name=chat_message["role"]):
+            st.markdown(chat_message["content"])
+
+
+def stream_assistant_response(azure_client: AzureOpenAI) -> None:
+    with st.chat_message(name="assistant"):
+        try:
+            completion_stream = azure_client.chat.completions.create(
+                model=st.session_state["selected_model"],
+                messages=st.session_state["chat_history"],
+                stream=True,
+                temperature=0.7,
+                max_tokens=1000,
+            )
+            streamed_response = st.write_stream(completion_stream)
+            st.session_state["chat_history"].append(
+                {"role": "assistant", "content": streamed_response}
+            )
+        except Exception as completion_error:
+            st.error(f"Error generating response: {completion_error}")
+            st.info("Please check your API key and try again.")
+
+
 st.set_page_config(
     page_title="My Own Chatbot",
     page_icon="🤖",
-    layout="centered"
+    layout="centered",
 )
 
 st.title("🤖 My Own Chatbot!")
 st.caption("A polite academic teacher answering questions in hip-hop style")
 
-# Initialize OpenAI client
-client = initialize_client()
+azure_openai_client = create_azure_openai_client()
 
-# Initialize session state variables
-if "openai_model" not in st.session_state:
-    st.session_state["openai_model"] = "gpt-4o-mini"
+if "selected_model" not in st.session_state:
+    st.session_state["selected_model"] = DEFAULT_MODEL
 
-if "messages" not in st.session_state:
-    st.session_state.messages = [
-        {
-            "role": "system",
-            "content": "You are a polite academic teacher answering students' questions in a hip-hop style"
-        }
-    ]
+if "chat_history" not in st.session_state:
+    st.session_state["chat_history"] = build_initial_messages()
 
-# Model selection in sidebar
-with st.sidebar:
-    st.header("Settings")
-    model_option = st.selectbox(
-        "Choose Model:",
-        ["gpt-4o-mini", "gpt-4o", "gpt-35-turbo"],
-        index=0
-    )
-    st.session_state["openai_model"] = model_option
+render_sidebar()
+display_chat_history()
 
-    if st.button("Clear Chat History"):
-        st.session_state.messages = [
-            {
-                "role": "system",
-                "content": "You are a polite academic teacher answering students' questions in a hip-hop style"
-            }
-        ]
-        st.rerun()
+if user_input := st.chat_input("Hi, what's up?"):
+    st.session_state["chat_history"].append({"role": "user", "content": user_input})
 
-    st.info("💡 **Tip**: This chatbot combines academic knowledge with hip-hop flair!")
+    with st.chat_message(name="user"):
+        st.markdown(user_input)
 
-# Display chat messages (excluding system message)
-for message in st.session_state.messages:
-    if message["role"] != "system":
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
-
-# Chat input
-if prompt := st.chat_input("Hi, what's up?"):
-    # Add user message to chat history
-    st.session_state.messages.append({"role": "user", "content": prompt})
-
-    # Display user message
-    with st.chat_message("user"):
-        st.markdown(prompt)
-
-    # Generate and display assistant response
-    with st.chat_message("assistant"):
-        try:
-            # Create streaming response
-            stream = client.chat.completions.create(
-                model=st.session_state["openai_model"],
-                messages=[
-                    {"role": m["role"], "content": m["content"]}
-                    for m in st.session_state.messages
-                ],
-                stream=True,
-                temperature=0.7,
-                max_tokens=1000
-            )
-
-            # Stream the response
-            response = st.write_stream(stream)
-
-            # Add assistant response to chat history
-            st.session_state.messages.append({"role": "assistant", "content": response})
-
-        except Exception as e:
-            st.error(f"Error generating response: {e}")
-            st.info("Please check your API key and try again.")
+    stream_assistant_response(azure_openai_client)
