@@ -1,5 +1,6 @@
 """
-Parallel Node Execution in LangGraph
+⚡ Parallel Node Execution in LangGraph
+========================================
 
 This script demonstrates parallel processing in LangGraph with two examples:
 1. Simple asynchronous process with nodes adding names to a list
@@ -9,202 +10,193 @@ In production environments, asynchronous processing and parallelization become
 critical. This affects not only reducing user wait time for responses, but also
 the ability to scale the system and containerize it.
 
-Required environment variables:
-- OPENAI_API_KEY: API key for OpenAI
-- TAVILY_API_KEY: API key for Tavily (web search engine)
+🔧 Prerequisites:
+- Azure OpenAI credentials in .env file
+- Tavily API key in .env file (TAVILY_API_KEY)
+- Python 3.13+ with langchain-openai, langgraph, python-dotenv
 """
 
-import os
+import operator
+import textwrap
+from typing import Annotated, Any, TypedDict
 
 from dotenv import load_dotenv
-
-load_dotenv(override=True)
-
-import operator
-from typing import Annotated, TypedDict, Any
-from langgraph.graph import StateGraph, START, END
-from langchain_openai import ChatOpenAI
-from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_community.document_loaders import WikipediaLoader
 from langchain_community.tools.tavily_search import TavilySearchResults
-
-# API key verification
-openai_key = os.getenv('OPENAI_API_KEY')
-tavily_key = os.getenv('TAVILY_API_KEY')
-
-if not openai_key:
-    raise ValueError("OPENAI_API_KEY not found in environment variables")
-if not tavily_key:
-    raise ValueError("TAVILY_API_KEY not found in environment variables")
-
-# LLM model initialization
-llm = ChatOpenAI(model="gpt-5-mini")
-
-print("=== PART 1: SIMPLE ASYNCHRONOUS PROCESS ===")
-print("Nodes introduce themselves and add their name to a single list")
-print()
+from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_openai import AzureChatOpenAI
+from langgraph.graph import StateGraph, START, END
 
 
-# State definition for simple example
-class SimpleState(TypedDict):
+def print_section_header(title: str) -> None:
+    separator = "=" * 60
+    print(f"\n{separator}\n{title}\n{separator}")
+
+
+class ParallelNodeListState(TypedDict):
     state: Annotated[list, operator.add]
 
 
-class ReturnNodeValue:
-    """Class representing a node that adds its value to the state"""
+class NodeValueAppender:
+    """A graph node that appends its assigned label to the shared state list."""
 
-    def __init__(self, node_secret: str):
-        self._value = node_secret
+    def __init__(self, node_label: str):
+        self._label = node_label
 
-    def __call__(self, state: SimpleState) -> Any:
-        print(f"Adding {self._value} to {state['state']}")
-        return {"state": [self._value]}
-
-
-# Creating graph for simple example
-simple_builder = StateGraph(SimpleState)
-
-# Adding nodes with unique names
-simple_builder.add_node("a", ReturnNodeValue("I am A"))
-simple_builder.add_node("b", ReturnNodeValue("I am B"))
-simple_builder.add_node("c", ReturnNodeValue("I am C"))
-simple_builder.add_node("d", ReturnNodeValue("I am D"))
-
-# Flow definition - nodes b and c run in parallel after a
-simple_builder.add_edge(START, "a")
-simple_builder.add_edge("a", "b")  # parallel execution
-simple_builder.add_edge("a", "c")  # parallel execution
-simple_builder.add_edge("b", "d")
-simple_builder.add_edge("c", "d")
-simple_builder.add_edge("d", END)
-
-simple_graph = simple_builder.compile()
-
-# Running simple example
-print("Running simple asynchronous graph:")
-simple_result = simple_graph.invoke({"state": []})
-print(f"Result: {simple_result}")
-print()
-
-print("=== PART 2: PARALLEL PROCESSING WITH LLM ===")
-print("System answers questions using two sources: Internet (Tavily) and Wikipedia")
-print()
+    def __call__(self, current_state: ParallelNodeListState) -> Any:
+        print(f"Adding {self._label} to {current_state['state']}")
+        return {"state": [self._label]}
 
 
-# State definition for search example
-class SearchState(TypedDict):
+class ParallelSearchState(TypedDict):
     question: str
     answer: str
     context: Annotated[list, operator.add]
 
 
-def search_web(state):
-    """Search internet resources using Tavily"""
-
+def search_web_with_tavily(search_state: ParallelSearchState):
+    """Searches internet resources using Tavily and returns formatted results as context."""
     print("... Searching internet resources using Tavily ... \n")
 
-    # Internet search
     tavily_search = TavilySearchResults(max_results=3)
-    search_docs = tavily_search.invoke(state['question'])
+    tavily_results = tavily_search.invoke(search_state["question"])
 
-    # Format results
-    formatted_search_docs = "\n\n---\n\n".join(
-        [
-            f'<Document href="{doc["url"]}"/>\n{doc["content"]}\n</Document>'
-            for doc in search_docs
-        ]
+    formatted_tavily_results = "\n\n---\n\n".join(
+        f'<Document href="{doc["url"]}"/>\n{doc["content"]}\n</Document>'
+        for doc in tavily_results
     )
 
-    return {"context": [formatted_search_docs]}
+    return {"context": [formatted_tavily_results]}
 
 
-def search_wikipedia(state):
-    """Search Wikipedia resources"""
-
+def search_wikipedia(search_state: ParallelSearchState):
+    """Searches Wikipedia and returns formatted article excerpts as context."""
     print("... Searching Wikipedia resources ... \n")
 
-    # Wikipedia search
-    search_docs = WikipediaLoader(
-        query=state['question'],
-        load_max_docs=2
+    wiki_documents = WikipediaLoader(
+        query=search_state["question"],
+        load_max_docs=2,
     ).load()
 
-    # Format results
-    formatted_search_docs = "\n\n---\n\n".join(
-        [
-            f'<Document source="{doc.metadata["source"]}" page="{doc.metadata.get("page", "")}"/>\n{doc.page_content}\n</Document>'
-            for doc in search_docs
-        ]
+    formatted_wiki_results = "\n\n---\n\n".join(
+        f'<Document source="{doc.metadata["source"]}" page="{doc.metadata.get("page", "")}"/>\n'
+        f"{doc.page_content}\n</Document>"
+        for doc in wiki_documents
     )
 
-    return {"context": [formatted_search_docs]}
+    return {"context": [formatted_wiki_results]}
 
 
-def generate_answer(state):
-    """Generate answer based on collected context"""
-
-    # Get state
-    context = state["context"]
-    question = state["question"]
-
-    # Answer template
-    answer_template = """Answer the question {question} using this context: {context}"""
-    answer_instructions = answer_template.format(
-        question=question,
-        context=context
+def generate_answer_from_context(
+        search_state: ParallelSearchState,
+        *,
+        azure_chat_llm: AzureChatOpenAI,
+):
+    """Generates a final answer by combining the collected context with the original question."""
+    answer_instructions = (
+        f"Answer the question {search_state['question']} "
+        f"using this context: {search_state['context']}"
     )
 
-    # Generate answer
-    answer = llm.invoke([
+    llm_answer = azure_chat_llm.invoke([
         SystemMessage(content=answer_instructions),
-        HumanMessage(content="Answer the question.")
+        HumanMessage(content="Answer the question."),
     ])
 
-    return {"answer": answer}
+    return {"answer": llm_answer}
 
 
-# Creating search graph
-search_builder = StateGraph(SearchState)
+def demonstrate_parallel_node_execution() -> None:
+    """
+    PART 1 — Simple Asynchronous Process
 
-# Adding nodes
-search_builder.add_node("search_internet", search_web)
-search_builder.add_node("search_wikipedia", search_wikipedia)
-search_builder.add_node("generate_answer", generate_answer)
+    Nodes introduce themselves and add their name to a single shared list.
+    Nodes B and C execute in parallel after A, then D collects both results.
+    """
+    print_section_header("PART 1: SIMPLE ASYNCHRONOUS PROCESS")
+    print(textwrap.dedent(demonstrate_parallel_node_execution.__doc__))
 
-# Flow definition - searches run in parallel
-search_builder.add_edge(START, "search_wikipedia")  # parallel execution
-search_builder.add_edge(START, "search_internet")  # parallel execution
-search_builder.add_edge("search_wikipedia", "generate_answer")
-search_builder.add_edge("search_internet", "generate_answer")
-search_builder.add_edge("generate_answer", END)
+    parallel_builder = StateGraph(ParallelNodeListState)  # type: ignore[arg-type]
+    parallel_builder.add_node("a", NodeValueAppender("I am A"))  # type: ignore[arg-type]
+    parallel_builder.add_node("b", NodeValueAppender("I am B"))  # type: ignore[arg-type]
+    parallel_builder.add_node("c", NodeValueAppender("I am C"))  # type: ignore[arg-type]
+    parallel_builder.add_node("d", NodeValueAppender("I am D"))  # type: ignore[arg-type]
 
-search_graph = search_builder.compile()
+    parallel_builder.add_edge(START, "a")
+    parallel_builder.add_edge("a", "b")
+    parallel_builder.add_edge("a", "c")
+    parallel_builder.add_edge("b", "d")
+    parallel_builder.add_edge("c", "d")
+    parallel_builder.add_edge("d", END)
 
-# Example question to demonstrate the system
-example_question = "What is a business potential of LLM-based multi-agent systems in banking? Suggest the most interesting business cases"
+    parallel_graph = parallel_builder.compile()
 
-print(f"Asking question: {example_question}")
-print()
+    print("Running simple asynchronous graph:")
+    parallel_result = parallel_graph.invoke({"state": []})  # type: ignore[arg-type]
+    print(f"Result: {parallel_result}\n")
 
-# Run search and answer generation
-search_result = search_graph.invoke({"question": example_question})
 
-print("=== ANSWER ===")
-print(search_result['answer'].content)
-print()
+def demonstrate_parallel_search_with_llm(azure_chat_llm: AzureChatOpenAI) -> None:
+    """
+    PART 2 — Parallel Processing with LLM
 
-print("=== CONTEXT INFORMATION ===")
-print(f"Collected {len(search_result['context'])} information sources:")
-for i, context in enumerate(search_result['context'], 1):
-    print(f"Source {i}: {len(context)} characters")
+    The system answers questions using two sources searched in parallel:
+    Internet (Tavily) and Wikipedia. Results are merged as context for the LLM.
+    """
+    print_section_header("PART 2: PARALLEL PROCESSING WITH LLM")
+    print(textwrap.dedent(demonstrate_parallel_search_with_llm.__doc__))
 
-# Examples of other questions to try:
-print("\n=== OTHER QUESTIONS TO TRY ===")
-print("You can test the system with other questions, for example:")
-print('- "What is the potential of generative technologies in banking?"')
-print('- "What is the current state of floods in Poland?"')
-print('- "What are the latest developments in artificial intelligence?"')
-print()
-print("To ask a new question, use:")
-print('new_result = search_graph.invoke({"question": "your question"})')
-print('print(new_result["answer"].content)')
+    def generate_answer_node(current_search_state: ParallelSearchState):
+        """Graph node wrapper that injects the LLM into the answer generation."""
+        return generate_answer_from_context(
+            current_search_state,
+            azure_chat_llm=azure_chat_llm,
+        )
+
+    search_builder = StateGraph(ParallelSearchState)  # type: ignore[arg-type]
+    search_builder.add_node("search_internet", search_web_with_tavily)  # type: ignore[arg-type]
+    search_builder.add_node("search_wikipedia", search_wikipedia)  # type: ignore[arg-type]
+    search_builder.add_node("generate_answer", generate_answer_node)  # type: ignore[arg-type]
+
+    search_builder.add_edge(START, "search_wikipedia")
+    search_builder.add_edge(START, "search_internet")
+    search_builder.add_edge("search_wikipedia", "generate_answer")
+    search_builder.add_edge("search_internet", "generate_answer")
+    search_builder.add_edge("generate_answer", END)
+
+    search_graph = search_builder.compile()
+
+    example_question = (
+        "What is a business potential of LLM-based multi-agent systems in banking? "
+        "Suggest the most interesting business cases"
+    )
+    print(f"Asking question: {example_question}\n")
+
+    search_result = search_graph.invoke({"question": example_question})  # type: ignore[arg-type]
+
+    print(f"=== ANSWER ===\n{search_result['answer'].content}\n")
+
+    print(f"=== CONTEXT INFORMATION ===\nCollected {len(search_result['context'])} information sources:")
+    for source_index, source_content in enumerate(search_result["context"], start=1):
+        print(f"Source {source_index}: {len(source_content)} characters")
+
+    print(textwrap.dedent("""\
+
+        === OTHER QUESTIONS TO TRY ===
+        You can test the system with other questions, for example:
+        - "What is the potential of generative technologies in banking?"
+        - "What is the current state of floods in Poland?"
+        - "What are the latest developments in artificial intelligence?"
+
+        To ask a new question, use:
+        new_result = search_graph.invoke({"question": "your question"})
+        print(new_result["answer"].content)"""))
+
+
+if __name__ == "__main__":
+    load_dotenv(override=True)
+
+    azure_llm = AzureChatOpenAI(model="gpt-4.1-mini")
+
+    demonstrate_parallel_node_execution()
+    demonstrate_parallel_search_with_llm(azure_chat_llm=azure_llm)
