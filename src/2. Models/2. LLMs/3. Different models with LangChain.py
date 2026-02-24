@@ -20,6 +20,7 @@ both through their native SDKs and through LangChain's unified abstraction.
 """
 
 import os
+import textwrap
 
 from anthropic import Anthropic
 from anthropic.types import MessageParam, TextBlockParam
@@ -45,7 +46,7 @@ def demonstrate_azure_openai_native(azure_openai_client: AzureOpenAI) -> None:
     This is the lowest-level way to send a chat completion request.
     """
     print_section_header("AZURE OPENAI — NATIVE SDK")
-    print(demonstrate_azure_openai_native.__doc__)
+    print(textwrap.dedent(demonstrate_azure_openai_native.__doc__))
 
     sky_question = "Why is the sky blue?"
     azure_openai_response = azure_openai_client.chat.completions.create(
@@ -63,7 +64,7 @@ def demonstrate_claude_native() -> None:
     and max_tokens is a required parameter.
     """
     print_section_header("ANTHROPIC CLAUDE — NATIVE SDK")
-    print(demonstrate_claude_native.__doc__)
+    print(textwrap.dedent(demonstrate_claude_native.__doc__))
 
     anthropic_api_key = os.getenv("ANTHROPIC_API_KEY")
     claude_native_client = Anthropic(api_key=anthropic_api_key)
@@ -90,7 +91,7 @@ def demonstrate_azure_openai_via_langchain() -> None:
     Calling .invoke(question) returns an AIMessage — same shape regardless of provider.
     """
     print_section_header("AZURE OPENAI — VIA LANGCHAIN")
-    print(demonstrate_azure_openai_via_langchain.__doc__)
+    print(textwrap.dedent(demonstrate_azure_openai_via_langchain.__doc__))
 
     azure_langchain_llm = AzureChatOpenAI(model="gpt-4o-mini")
     sky_question = "Why is the sky blue?"
@@ -105,7 +106,7 @@ def demonstrate_claude_via_langchain() -> None:
     to swap providers without touching application logic.
     """
     print_section_header("ANTHROPIC CLAUDE — VIA LANGCHAIN")
-    print(demonstrate_claude_via_langchain.__doc__)
+    print(textwrap.dedent(demonstrate_claude_via_langchain.__doc__))
 
     anthropic_api_key = SecretStr(os.environ["ANTHROPIC_API_KEY"])
     claude_langchain_llm = ChatAnthropic(
@@ -127,10 +128,11 @@ def demonstrate_ollama_via_langchain() -> None:
     prototype with a local LLM and later swap in a cloud provider.
     """
     print_section_header("OLLAMA — VIA LANGCHAIN (PROMPT CHAIN)")
-    print(demonstrate_ollama_via_langchain.__doc__)
+    print(textwrap.dedent(demonstrate_ollama_via_langchain.__doc__))
 
-    step_by_step_template = """Question: {question}
-                               Answer: Let's think step by step."""
+    step_by_step_template = textwrap.dedent("""\
+        Question: {question}
+        Answer: Let's think step by step.""")
 
     step_by_step_prompt = ChatPromptTemplate.from_template(step_by_step_template)
     ollama_llama_model = OllamaLLM(model="llama3.1")

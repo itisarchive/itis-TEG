@@ -130,9 +130,10 @@ def display_detailed_usage_statistics(claude_response: Message) -> None:
     output_token_count = claude_response.usage.output_tokens
     total_token_count = input_token_count + output_token_count
 
-    print(f"Input tokens:  {input_token_count}")
-    print(f"Output tokens: {output_token_count}")
-    print(f"Total tokens:  {total_token_count}")
+    print(textwrap.dedent(f"""\
+        Input tokens:  {input_token_count}
+        Output tokens: {output_token_count}
+        Total tokens:  {total_token_count}"""))
 
 
 def display_api_comparison_with_openai() -> None:

@@ -60,7 +60,8 @@ extended with a **t-SNE visualization** (section 5b) for comparison with PCA.
 
 - Python 3.13+
 - Azure OpenAI resource with a deployed `text-embedding-3-small` model
-  (see [Azure AI Foundry docs](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/create-resource?pivots=web-portal))
+  (
+  see [Azure AI Foundry docs](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/create-resource?pivots=web-portal))
 
 ### Setup
 
@@ -89,14 +90,14 @@ For the notebook, open `notebook_1.ipynb` in your IDE or Jupyter and run cells s
 
 Defined in `pyproject.toml`:
 
-| Package         | Purpose                        | Min version |
-|-----------------|--------------------------------|-------------|
-| `openai`        | Azure OpenAI SDK               | ≥ 2.21.0    |
-| `numpy`         | Vector operations              | ≥ 2.4.2     |
-| `scikit-learn`  | Cosine similarity, PCA, t-SNE  | ≥ 1.8.0     |
-| `matplotlib`    | Chart rendering                | ≥ 3.10.8    |
-| `seaborn`       | Heatmap visualization          | ≥ 0.13.2    |
-| `python-dotenv` | `.env` file loading            | ≥ 1.2.1     |
+| Package         | Purpose                       | Min version |
+|-----------------|-------------------------------|-------------|
+| `openai`        | Azure OpenAI SDK              | ≥ 2.21.0    |
+| `numpy`         | Vector operations             | ≥ 2.4.2     |
+| `scikit-learn`  | Cosine similarity, PCA, t-SNE | ≥ 1.8.0     |
+| `matplotlib`    | Chart rendering               | ≥ 3.10.8    |
+| `seaborn`       | Heatmap visualization         | ≥ 0.13.2    |
+| `python-dotenv` | `.env` file loading           | ≥ 1.2.1     |
 
 ## 🔐 Environment Variables
 

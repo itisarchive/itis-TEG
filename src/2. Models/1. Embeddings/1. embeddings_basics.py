@@ -135,16 +135,17 @@ def demonstrate_basic_embedding_properties(client: AzureOpenAI, cache: dict[str,
     embedding_vector = fetch_embedding(sample_word, client=client, cache=cache)
     embedding_array = np.array(embedding_vector)
 
-    print(f"Word: '{sample_word}'")
-    print(f"Embedding dimensions: {len(embedding_vector)}")
-    print(f"First 5 dimensions: {embedding_vector[:5]}")
-    print(f"Embedding magnitude: {np.linalg.norm(embedding_array):.4f}")
+    print(textwrap.dedent(f"""\
+        Word: '{sample_word}'
+        Embedding dimensions: {len(embedding_vector)}
+        First 5 dimensions: {embedding_vector[:5]}
+        Embedding magnitude: {np.linalg.norm(embedding_array):.4f}
 
-    print(f"\nEmbedding statistics:")
-    print(f"Min value: {min(embedding_vector):.6f}")
-    print(f"Max value: {max(embedding_vector):.6f}")
-    print(f"Mean: {np.mean(embedding_array):.6f}")
-    print(f"Standard deviation: {np.std(embedding_array):.6f}")
+        Embedding statistics:
+        Min value: {min(embedding_vector):.6f}
+        Max value: {max(embedding_vector):.6f}
+        Mean: {np.mean(embedding_array):.6f}
+        Standard deviation: {np.std(embedding_array):.6f}"""))
 
 
 def demonstrate_word_similarity_analysis(client: AzureOpenAI, cache: dict[str, list[float]]) -> None:
@@ -170,8 +171,10 @@ def demonstrate_word_similarity_analysis(client: AzureOpenAI, cache: dict[str, l
         WordPair(first="bratwurst", second="sushi"),
     ]
 
-    print(f"{'Word Pair':<20} {'Cosine Sim':>12} {'Euclidean':>12} {'Dot Product':>12}")
-    print("-" * 58)
+    print(
+        f"{'Word Pair':<20} {'Cosine Sim':>12} {'Euclidean':>12} {'Dot Product':>12}\n"
+        f"{'-' * 58}"
+    )
 
     for pair in word_pairs_to_compare:
         metrics = compare_two_words(pair.first, pair.second, client=client, cache=cache)
@@ -180,10 +183,12 @@ def demonstrate_word_similarity_analysis(client: AzureOpenAI, cache: dict[str, l
             f"{metrics['euclidean_distance']:>12.4f} {metrics['dot_product']:>12.4f}"
         )
 
-    print("\nKey Observations:")
-    print("• Higher cosine similarity = more semantically similar")
-    print("• Lower euclidean distance = more similar")
-    print("• Dot product magnitude correlates with similarity")
+    print(textwrap.dedent("""\
+
+        Key Observations:
+        • Higher cosine similarity = more semantically similar
+        • Lower euclidean distance = more similar
+        • Dot product magnitude correlates with similarity"""))
 
 
 def demonstrate_cat_dog_mystery(client: AzureOpenAI, cache: dict[str, list[float]]) -> None:
@@ -202,18 +207,22 @@ def demonstrate_cat_dog_mystery(client: AzureOpenAI, cache: dict[str, list[float
     cat_dog_metrics = compare_two_words("cat", "dog", client=client, cache=cache)
     cat_kitten_metrics = compare_two_words("cat", "kitten", client=client, cache=cache)
 
-    print("The Counterintuitive Finding:")
-    print(f"cat-dog similarity:    {cat_dog_metrics['cosine_similarity']:.4f}")
-    print(f"cat-kitten similarity: {cat_kitten_metrics['cosine_similarity']:.4f}")
-    print(f"Difference: {cat_dog_metrics['cosine_similarity'] - cat_kitten_metrics['cosine_similarity']:.4f}")
+    print(textwrap.dedent(f"""\
+        The Counterintuitive Finding:
+        cat-dog similarity:    {cat_dog_metrics['cosine_similarity']:.4f}
+        cat-kitten similarity: {cat_kitten_metrics['cosine_similarity']:.4f}
+        Difference: {cat_dog_metrics['cosine_similarity'] - cat_kitten_metrics['cosine_similarity']:.4f}"""))
 
     if cat_dog_metrics["cosine_similarity"] > cat_kitten_metrics["cosine_similarity"]:
-        print("\n🤔 Why is 'cat' more similar to 'dog' than to 'kitten'?")
-        print("\nThis demonstrates that embeddings capture:")
-        print("• Statistical patterns of word usage")
-        print("• Co-occurrence in similar contexts")
-        print("• Semantic level relationships (adult animals)")
-        print("• NOT biological or taxonomic relationships")
+        print(textwrap.dedent("""\
+
+            🤔 Why is 'cat' more similar to 'dog' than to 'kitten'?
+
+            This demonstrates that embeddings capture:
+            • Statistical patterns of word usage
+            • Co-occurrence in similar contexts
+            • Semantic level relationships (adult animals)
+            • NOT biological or taxonomic relationships"""))
 
 
 def demonstrate_context_effects(client: AzureOpenAI, cache: dict[str, list[float]]) -> None:
@@ -236,9 +245,11 @@ def demonstrate_context_effects(client: AzureOpenAI, cache: dict[str, list[float
 
     context_test_words = ["cat", "dog", "kitten"]
 
-    print("Similarity changes with context:")
-    print(f"{'Context':<35} {'cat-dog':>10} {'cat-kitten':>12} {'Difference':>12}")
-    print("-" * 70)
+    print(
+        f"Similarity changes with context:\n"
+        f"{'Context':<35} {'cat-dog':>10} {'cat-kitten':>12} {'Difference':>12}\n"
+        f"{'-' * 70}"
+    )
 
     for template in context_templates:
         phrases = [template.format(word) for word in context_test_words]
@@ -321,8 +332,10 @@ def demonstrate_semantic_clusters(client: AzureOpenAI, cache: dict[str, list[flo
     plt.tight_layout()
     plt.savefig("semantic_clusters.png", dpi=300, bbox_inches="tight")
 
-    print(f"✅ Visualization saved as 'semantic_clusters.png'")
-    print(f"📊 PCA explains {sum(pca_reducer.explained_variance_ratio_):.1%} of total variance")
+    print(
+        f"✅ Visualization saved as 'semantic_clusters.png'\n"
+        f"📊 PCA explains {sum(pca_reducer.explained_variance_ratio_):.1%} of total variance"
+    )
 
     intra_cluster_similarities: list[float] = []
     inter_cluster_similarities: list[float] = []
@@ -341,10 +354,12 @@ def demonstrate_semantic_clusters(client: AzureOpenAI, cache: dict[str, list[flo
     average_intra = np.mean(intra_cluster_similarities)
     average_inter = np.mean(inter_cluster_similarities)
 
-    print(f"\nCluster Analysis:")
-    print(f"Average intra-cluster similarity: {average_intra:.4f}")
-    print(f"Average inter-cluster similarity: {average_inter:.4f}")
-    print(f"Clustering effectiveness: {average_intra - average_inter:.4f}")
+    print(textwrap.dedent(f"""\
+
+        Cluster Analysis:
+        Average intra-cluster similarity: {average_intra:.4f}
+        Average inter-cluster similarity: {average_inter:.4f}
+        Clustering effectiveness: {average_intra - average_inter:.4f}"""))
 
 
 def demonstrate_similarity_heatmap(client: AzureOpenAI, cache: dict[str, list[float]]) -> None:
@@ -395,9 +410,7 @@ def demonstrate_similarity_heatmap(client: AzureOpenAI, cache: dict[str, list[fl
     print(
         f"\nMost similar pair: {heatmap_words[most_similar_indices[0]]}-"
         f"{heatmap_words[most_similar_indices[1]]} "
-        f"(similarity: {similarity_matrix[most_similar_indices]:.4f})"
-    )
-    print(
+        f"(similarity: {similarity_matrix[most_similar_indices]:.4f})\n"
         f"Least similar pair: {heatmap_words[least_similar_indices[0]]}-"
         f"{heatmap_words[least_similar_indices[1]]} "
         f"(similarity: {similarity_matrix[least_similar_indices]:.4f})"
@@ -441,21 +454,22 @@ def demonstrate_vector_arithmetic(client: AzureOpenAI, cache: dict[str, list[flo
     print_section_header("DEMO 7: VECTOR ARITHMETIC - THE FAMOUS KING-QUEEN ANALOGY")
     print(textwrap.dedent(demonstrate_vector_arithmetic.__doc__))
 
-    print("🎯 Exploring the famous: king - man + woman ≈ queen")
-    print("This demonstrates how embeddings capture semantic relationships!\n")
+    print(textwrap.dedent("""\
+        🎯 Exploring the famous: king - man + woman ≈ queen
+        This demonstrates how embeddings capture semantic relationships!
 
-    print("1. Getting embeddings for the core analogy words...")
+        1. Getting embeddings for the core analogy words..."""))
     core_analogy_words = ["king", "man", "woman", "queen"]
     word_vectors: dict[str, np.ndarray] = {}
 
     for word in core_analogy_words:
         word_vectors[word] = np.array(fetch_embedding(word, client=client, cache=cache))
 
-    print("\n2. Performing vector arithmetic: king - man + woman")
+    print(f"\n2. Performing vector arithmetic: king - man + woman")
     king_minus_man_plus_woman = word_vectors["king"] - word_vectors["man"] + word_vectors["woman"]
     print(f"✓ Calculated result vector (dimension: {len(king_minus_man_plus_woman)})")
 
-    print("\n3. Comparing result to target word 'queen'...")
+    print(f"\n3. Comparing result to target word 'queen'...")
     queen_similarity_score = compute_cosine_similarity(
         king_minus_man_plus_woman.tolist(), word_vectors["queen"].tolist()
     )
@@ -476,8 +490,10 @@ def demonstrate_vector_arithmetic(client: AzureOpenAI, cache: dict[str, list[flo
 
     candidate_similarities.sort(key=lambda pair: pair[1], reverse=True)
 
-    print(f"\n{'Word':<12} {'Similarity':>12} {'Status'}")
-    print("-" * 35)
+    print(
+        f"\n{'Word':<12} {'Similarity':>12} {'Status'}\n"
+        f"{'-' * 35}"
+    )
 
     queen_rank: int | None = None
     for rank_index, (candidate_word, similarity_score) in enumerate(candidate_similarities):
@@ -491,18 +507,21 @@ def demonstrate_vector_arithmetic(client: AzureOpenAI, cache: dict[str, list[flo
     print(f"\nResult: 'queen' ranked #{queen_rank} out of {len(candidate_similarities)} candidates")
 
     if queen_rank == 1:
-        print("✅ PERFECT: The analogy works flawlessly!")
-        print("   king - man + woman ≈ queen")
+        print(textwrap.dedent("""\
+            ✅ PERFECT: The analogy works flawlessly!
+               king - man + woman ≈ queen"""))
     elif queen_rank is not None and queen_rank <= 3:
         print("✅ EXCELLENT: The analogy works very well (top 3 result)")
     else:
         print("✅ GOOD: The analogy demonstrates the pattern")
 
-    print(f"\n5. Understanding why this works...")
-    print("The vector arithmetic captures relationships:")
-    print("• 'king' - 'man' = concept of royalty without gender")
-    print("• Adding 'woman' = royalty + female gender")
-    print("• Result ≈ 'queen' = royal female")
+    print(textwrap.dedent("""\
+
+        5. Understanding why this works...
+        The vector arithmetic captures relationships:
+        • 'king' - 'man' = concept of royalty without gender
+        • Adding 'woman' = royalty + female gender
+        • Result ≈ 'queen' = royal female"""))
 
     print(f"\n6. Testing other gender-role analogies...")
     gender_role_analogies: list[AnalogyTestCase] = [
@@ -512,8 +531,10 @@ def demonstrate_vector_arithmetic(client: AzureOpenAI, cache: dict[str, list[flo
         AnalogyTestCase(source_word="prince", subtract_word="man", add_word="woman", expected_target="princess"),
     ]
 
-    print(f"\n{'Analogy':<25} {'Target':<8} {'Similarity':>12} {'Success':>10}")
-    print("-" * 57)
+    print(
+        f"\n{'Analogy':<25} {'Target':<8} {'Similarity':>12} {'Success':>10}\n"
+        f"{'-' * 57}"
+    )
 
     for analogy in gender_role_analogies:
         analogy_similarity = compute_analogy_similarity(
@@ -534,8 +555,10 @@ def demonstrate_vector_arithmetic(client: AzureOpenAI, cache: dict[str, list[flo
         AnalogyTestCase(source_word="walk", subtract_word="walking", add_word="run", expected_target="running"),
     ]
 
-    print(f"\n{'Conceptual Analogy':<25} {'Target':<10} {'Similarity':>12}")
-    print("-" * 49)
+    print(
+        f"\n{'Conceptual Analogy':<25} {'Target':<10} {'Similarity':>12}\n"
+        f"{'-' * 49}"
+    )
 
     for analogy in conceptual_analogies:
         analogy_similarity = compute_analogy_similarity(

@@ -59,7 +59,8 @@ preceded by organizational notes for the course (tools, grading, schedule).
 ### Prerequisites
 
 - Python 3.13+
-- Azure OpenAI resource with deployed models (see [Azure AI Foundry docs](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/create-resource?pivots=web-portal))
+- Azure OpenAI resource with deployed models (
+  see [Azure AI Foundry docs](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/create-resource?pivots=web-portal))
 
 ### Setup
 

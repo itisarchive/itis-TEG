@@ -124,10 +124,10 @@ def demonstrate_system_prompts(client: AzureOpenAI) -> None:
     )
     print(hip_hop_teacher_answer)
 
-    print(
-        "\n💡 Your Turn: Modify the system prompt above to create your own unique AI personality!\n"
-        '   e.g., "pirate teacher", "corporate consultant", "kindergarten helper", etc.'
-    )
+    print(textwrap.dedent("""\
+
+        💡 Your Turn: Modify the system prompt above to create your own unique AI personality!
+           e.g., "pirate teacher", "corporate consultant", "kindergarten helper", etc."""))
 
 
 def demonstrate_temperature(client: AzureOpenAI) -> None:
@@ -169,11 +169,11 @@ def demonstrate_temperature(client: AzureOpenAI) -> None:
         )
         print(creative_answer)
 
-    print(
-        "\n💡 KEY INSIGHT: Temperature dramatically affects creativity vs consistency.\n"
-        "   Exercise: Run this section multiple times and observe how responses change.\n"
-        "   Hint: High temperature responses will be different each time, low won't."
-    )
+    print(textwrap.dedent("""\
+
+        💡 KEY INSIGHT: Temperature dramatically affects creativity vs consistency.
+           Exercise: Run this section multiple times and observe how responses change.
+           Hint: High temperature responses will be different each time, low won't."""))
 
 
 def demonstrate_token_management(client: AzureOpenAI) -> None:
@@ -212,14 +212,16 @@ def demonstrate_token_management(client: AzureOpenAI) -> None:
         )
         actual_word_count = len(token_limited_answer.split())
 
-        print(f"   Actual words: {actual_word_count}")
-        print(f"   Response: {token_limited_answer}")
+        print(
+            f"   Actual words: {actual_word_count}\n"
+            f"   Response: {token_limited_answer}"
+        )
 
-    print(
-        "\n💡 KEY INSIGHT: Token limits control both cost and response style.\n"
-        "   Exercise: Try asking a complex question with only 20 tokens.\n"
-        "   Hint: The AI will be forced to give a very brief, focused answer."
-    )
+    print(textwrap.dedent("""\
+
+        💡 KEY INSIGHT: Token limits control both cost and response style.
+           Exercise: Try asking a complex question with only 20 tokens.
+           Hint: The AI will be forced to give a very brief, focused answer."""))
 
 
 def demonstrate_advanced_parameter_combinations(client: AzureOpenAI) -> None:
@@ -255,10 +257,12 @@ def demonstrate_advanced_parameter_combinations(client: AzureOpenAI) -> None:
     test_user_prompt = "Explain artificial intelligence and its impact on modern society."
 
     for persona_config in tuned_persona_configs:
-        print(f"\n🎯 {persona_config.persona_name}")
-        print(f"   Use Case: {persona_config.use_case}")
-        print(f"   Parameters: {persona_config.model_params}")
-        print(f"   Rationale: {persona_config.rationale}")
+        print(textwrap.dedent(f"""\
+
+            🎯 {persona_config.persona_name}
+               Use Case: {persona_config.use_case}
+               Parameters: {persona_config.model_params}
+               Rationale: {persona_config.rationale}"""))
 
         extracted_role = persona_config.persona_name.split()[1].lower()
         persona_answer = send_chat_completion(
@@ -269,12 +273,12 @@ def demonstrate_advanced_parameter_combinations(client: AzureOpenAI) -> None:
         )
         print(f"   Response: {persona_answer[:150]}...")
 
-    print(
-        "\n💡 KEY INSIGHT: Professional LLM applications use carefully tuned parameter\n"
-        "   combinations. Start with these proven configs and adjust for your needs!\n"
-        '   Exercise: Design parameters for a "Children\'s Science Tutor" bot.\n'
-        "   Hint: Consider age-appropriate language, engagement, and educational goals."
-    )
+    print(textwrap.dedent("""\
+
+        💡 KEY INSIGHT: Professional LLM applications use carefully tuned parameter
+           combinations. Start with these proven configs and adjust for your needs!
+           Exercise: Design parameters for a "Children's Science Tutor" bot.
+           Hint: Consider age-appropriate language, engagement, and educational goals."""))
 
 
 def demonstrate_real_world_applications(client: AzureOpenAI) -> None:
@@ -320,11 +324,13 @@ def demonstrate_real_world_applications(client: AzureOpenAI) -> None:
     ]
 
     for scenario in application_scenarios:
-        print(f"\n🔧 {scenario.scenario_name}")
-        print(f"   Learning Focus: {scenario.learning_point}")
-        print(f"   System Setup: {scenario.system_prompt}")
-        print(f"   Parameters: {scenario.model_params}")
-        print(f"   User Input: '{scenario.user_input}'")
+        print(textwrap.dedent(f"""\
+
+            🔧 {scenario.scenario_name}
+               Learning Focus: {scenario.learning_point}
+               System Setup: {scenario.system_prompt}
+               Parameters: {scenario.model_params}
+               User Input: '{scenario.user_input}'"""))
 
         scenario_answer = send_chat_completion(
             client,
@@ -336,14 +342,14 @@ def demonstrate_real_world_applications(client: AzureOpenAI) -> None:
         print(f"\n   🤖 AI Response:")
         print(textwrap.fill(scenario_answer, width=65, initial_indent="   ", subsequent_indent="   "))
 
-    print(
-        "\n💡 Exercise: Design your own application scenario\n"
-        "   1. Choose a real problem you want to solve\n"
-        "   2. Write a system prompt that defines the AI's role\n"
-        "   3. Select parameters that match your needs\n"
-        "   4. Test with example inputs\n"
-        "   Hint: Start with problems you face in your daily work or studies"
-    )
+    print(textwrap.dedent("""\
+
+        💡 Exercise: Design your own application scenario
+           1. Choose a real problem you want to solve
+           2. Write a system prompt that defines the AI's role
+           3. Select parameters that match your needs
+           4. Test with example inputs
+           Hint: Start with problems you face in your daily work or studies"""))
 
 
 def print_learning_summary() -> None:

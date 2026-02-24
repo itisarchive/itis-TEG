@@ -108,10 +108,10 @@ def demonstrate_response_object_anatomy(client: AzureOpenAI) -> None:
 
     display_detailed_usage_statistics(completion_response)
 
-    print(
-        "\n💡 The response object contains rich metadata that can be used\n"
-        "   for monitoring, logging, and understanding API usage patterns."
-    )
+    print(textwrap.dedent("""\
+
+        💡 The response object contains rich metadata that can be used
+           for monitoring, logging, and understanding API usage patterns."""))
 
 
 def display_detailed_usage_statistics(completion_response: ChatCompletion) -> None:
@@ -136,9 +136,10 @@ def display_detailed_usage_statistics(completion_response: ChatCompletion) -> No
     completion_token_count = completion_response.usage.completion_tokens
     total_token_count = completion_response.usage.total_tokens
 
-    print(f"Prompt tokens:     {prompt_token_count}")
-    print(f"Completion tokens: {completion_token_count}")
-    print(f"Total tokens:      {total_token_count}")
+    print(textwrap.dedent(f"""\
+        Prompt tokens:     {prompt_token_count}
+        Completion tokens: {completion_token_count}
+        Total tokens:      {total_token_count}"""))
 
     if hasattr(completion_response.usage, "completion_tokens_details"):
         token_details = completion_response.usage.completion_tokens_details
