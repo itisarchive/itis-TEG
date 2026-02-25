@@ -1,3 +1,26 @@
+<h1 align="center">
+  <div>
+    <img width="80" src="https://raw.githubusercontent.com/itischrisd/itis-PJATK/main/logo.svg" alt="" />
+  </div>
+  TEG (Generative Technologies)
+</h1>
+
+Repository that contains solutions to the exercises for the TEG (Generative Technologies) practical classes, taught by
+Adrian Stańdo during studies on [PJAIT](https://www.pja.edu.pl/en/).
+
+The following code and documentation was originally written by professor Andrzej Wodecki. Versions published here were
+modified in one way or another by me. Below you can find the original description of the repository, written by
+professor Wodecki. The original repository can be found [here](https://github.com/wodecki/TEG_2025).
+
+---
+
+If you need some help, notice any bugs or come up with possible improvements, feel free to reach out to me and/or create
+a pull request.
+
+---
+
+Original description:
+
 # GenAI Course 2025
 
 A comprehensive course on Generative AI—from foundational concepts to advanced implementations with RAG, agents, and
