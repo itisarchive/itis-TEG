@@ -1,6 +1,5 @@
 import asyncio
 import logging
-
 from collections.abc import AsyncIterable
 
 from agents.semantickernel.agent import SemanticKernelTravelAgent
@@ -21,7 +20,6 @@ from common.types import (
     TaskStatusUpdateEvent,
 )
 from common.utils.push_notification_auth import PushNotificationSenderAuth
-
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +64,7 @@ class TaskManager(InMemoryTaskManager):
         return await self._process_agent_response(request, agent_response)
 
     async def on_send_task_subscribe(
-        self, request: SendTaskStreamingRequest
+            self, request: SendTaskStreamingRequest
     ) -> AsyncIterable[SendTaskStreamingResponse] | JSONRPCResponse:
         """A method to handle a task streaming request.
 
@@ -95,7 +93,7 @@ class TaskManager(InMemoryTaskManager):
             )
 
     async def _run_streaming_agent(
-        self, request: SendTaskStreamingRequest
+            self, request: SendTaskStreamingRequest
     ) -> AsyncIterable[SendTaskStreamingResponse]:
         """A method to run the streaming agent.
 
@@ -108,7 +106,7 @@ class TaskManager(InMemoryTaskManager):
         try:
             query = request.params.message.parts[0].text
             async for partial in self.agent.stream(
-                query, request.params.sessionId
+                    query, request.params.sessionId
             ):
                 require_input = partial['require_user_input']
                 is_done = partial['is_task_complete']
@@ -177,7 +175,7 @@ class TaskManager(InMemoryTaskManager):
             )
 
     async def _process_agent_response(
-        self, request: SendTaskRequest, agent_response: dict
+            self, request: SendTaskRequest, agent_response: dict
     ) -> SendTaskResponse:
         """Process the agent's response and update the task status.
 
@@ -209,7 +207,7 @@ class TaskManager(InMemoryTaskManager):
         return SendTaskResponse(id=request.id, result=updated_task)
 
     def _validate_request(
-        self, request: SendTaskStreamingRequest
+            self, request: SendTaskStreamingRequest
     ) -> JSONRPCResponse | None:
         """Validate the request parameters.
 
@@ -222,8 +220,8 @@ class TaskManager(InMemoryTaskManager):
         if not request.params.acceptedOutputModes:
             return None
         if not any(
-            mode in SemanticKernelTravelAgent.SUPPORTED_CONTENT_TYPES
-            for mode in request.params.acceptedOutputModes
+                mode in SemanticKernelTravelAgent.SUPPORTED_CONTENT_TYPES
+                for mode in request.params.acceptedOutputModes
         ):
             logger.warning('Incompatible content type for SK Agent.')
             return JSONRPCResponse(

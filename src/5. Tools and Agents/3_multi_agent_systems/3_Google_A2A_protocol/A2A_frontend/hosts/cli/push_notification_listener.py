@@ -10,10 +10,10 @@ from starlette.responses import Response
 
 class PushNotificationListener:
     def __init__(
-        self,
-        host,
-        port,
-        notification_receiver_auth: PushNotificationReceiverAuth,
+            self,
+            host,
+            port,
+            notification_receiver_auth: PushNotificationReceiverAuth,
     ):
         self.host = host
         self.port = port
@@ -69,7 +69,7 @@ class PushNotificationListener:
         data = await request.json()
         try:
             if not await self.notification_receiver_auth.verify_push_notification(
-                request
+                    request
             ):
                 print('push notification verification failed')
                 return None

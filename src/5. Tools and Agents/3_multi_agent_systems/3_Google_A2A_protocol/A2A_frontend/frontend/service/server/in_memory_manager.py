@@ -137,7 +137,7 @@ class InMemoryFakeAgentManager(ApplicationManager):
         return message
 
     def get_conversation(
-        self, conversation_id: str | None
+            self, conversation_id: str | None
     ) -> Conversation | None:
         if not conversation_id:
             return None

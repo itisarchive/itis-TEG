@@ -30,9 +30,9 @@ class HostAgent:
     """
 
     def __init__(
-        self,
-        remote_agent_addresses: list[str],
-        task_callback: TaskUpdateCallback | None = None,
+            self,
+            remote_agent_addresses: list[str],
+            task_callback: TaskUpdateCallback | None = None,
     ):
         self.task_callback = task_callback
         self.remote_agent_connections: dict[str, RemoteAgentConnections] = {}
@@ -103,16 +103,16 @@ Current agent: {current_agent['active_agent']}
     def check_state(self, context: ReadonlyContext):
         state = context.state
         if (
-            'session_id' in state
-            and 'session_active' in state
-            and state['session_active']
-            and 'agent' in state
+                'session_id' in state
+                and 'session_active' in state
+                and state['session_active']
+                and 'agent' in state
         ):
             return {'active_agent': f'{state["agent"]}'}
         return {'active_agent': 'None'}
 
     def before_model_callback(
-        self, callback_context: CallbackContext, llm_request
+            self, callback_context: CallbackContext, llm_request
     ):
         state = callback_context.state
         if 'session_active' not in state or not state['session_active']:
@@ -133,7 +133,7 @@ Current agent: {current_agent['active_agent']}
         return remote_agent_info
 
     async def send_task(
-        self, agent_name: str, message: str, tool_context: ToolContext
+            self, agent_name: str, message: str, tool_context: ToolContext
     ):
         """Sends a task either streaming (if supported) or non-streaming.
 

@@ -7,30 +7,36 @@ A collection of Model Context Protocol (MCP) servers providing various tools for
 We provide two demo approaches for different use cases:
 
 ### 1. **Interactive Demo (Jupyter/Notebook)**
+
 ```bash
 # Open 1.mcp_demo.py in Jupyter notebook
 # Run each section (SECTION 1, 2, 3) in separate cells
 ```
+
 This demonstrates MCP protocol in an interactive format. Perfect for step-by-step learning and experimentation.
+
 - **File**: `1.mcp_demo.py`
 - **Use**: Run sections individually in Jupyter or async REPL
 - **Demos**: Math server, Weather server (OpenWeatherMap), Wikipedia server
 
 ### 2. **Command Line Demo (CLI)**
+
 ```bash
 uv run "2.mcp_demo - CLI.py"
 ```
+
 This runs all MCP demos sequentially from the command line.
+
 - **File**: `2.mcp_demo - CLI.py`
 - **Use**: Quick full demonstration of all servers
 - **Demos**: Complete walkthrough of math, weather, and Wikipedia servers
-
 
 **Learning Path**: Start with `2.mcp_demo - CLI.py` → Experiment with `1.mcp_demo.py` → Build your own!
 
 ## Demo Scripts Explained
 
 ### `1.mcp_demo.py` - Interactive MCP Demo 📓
+
 - **Purpose**: Learn MCP protocol interactively
 - **Approach**: Three sections that can be run independently in Jupyter cells
 - **Pros**: Step-by-step execution, easy to modify and experiment
@@ -39,6 +45,7 @@ This runs all MCP demos sequentially from the command line.
 - **Servers**: Math, Weather (OpenWeatherMap), Wikipedia
 
 ### `2.mcp_demo - CLI.py` - Command Line MCP Demo 🚀
+
 - **Purpose**: Complete demonstration of all MCP servers
 - **Approach**: Async functions with proper error handling
 - **Pros**: Easy to run, shows all servers, production-ready patterns
@@ -103,6 +110,7 @@ This repository contains five MCP servers, each providing specialized functional
 **Location**: `math_server/`
 
 **Tools**:
+
 - `add(a, b)`: Add two numbers
 - `subtract(a, b)`: Subtract b from a
 - `multiply(a, b)`: Multiply two numbers
@@ -112,11 +120,13 @@ This repository contains five MCP servers, each providing specialized functional
 - `factorial(n)`: Calculate factorial of non-negative integer
 
 **Usage**:
+
 ```bash
 uv run math_server/math.py
 ```
 
 **Example**:
+
 ```python
 # Via MCP call
 {"tool": "add", "args": {"a": 5, "b": 3}}  # Returns: 8
@@ -130,6 +140,7 @@ uv run math_server/math.py
 **Requirements**: `OPENWEATHERMAP_API_KEY` environment variable
 
 **Tools**:
+
 - `get_weather_by_city(city, country_code="")`: Get current weather for a city by name
 - `get_forecast(latitude, longitude)`: Get 5-day forecast for coordinates
 - `get_current_conditions(latitude, longitude)`: Get current weather conditions
@@ -137,6 +148,7 @@ uv run math_server/math.py
 **Data Source**: OpenWeatherMap API (global coverage)
 
 **Usage**:
+
 ```bash
 # Set API key first
 export OPENWEATHERMAP_API_KEY="your_api_key"
@@ -144,6 +156,7 @@ uv run weather_server/weather.py
 ```
 
 **Examples**:
+
 ```python
 # Get weather by city name
 {"tool": "get_weather_by_city", "args": {"city": "Warsaw", "country_code": "PL"}}
@@ -162,16 +175,19 @@ uv run weather_server/weather.py
 **Requirements**: `TAVILY_API_KEY` environment variable
 
 **Tools**:
+
 - `search(query, max_results=5)`: General web search
 - `search_news(query, max_results=5)`: Search recent news articles
 
 **Usage**:
+
 ```bash
 export TAVILY_API_KEY="your_api_key"
 uv run tavily_server/tavily.py
 ```
 
 **Example**:
+
 ```python
 {"tool": "search", "args": {"query": "latest AI developments", "max_results": 3}}
 ```
@@ -181,6 +197,7 @@ uv run tavily_server/tavily.py
 **Location**: `arxiv_server/`
 
 **Tools**:
+
 - `search_papers(query, max_results=5)`: Search papers by keywords
 - `search_by_author(author, max_results=5)`: Search papers by author name
 - `search_by_category(category, max_results=5)`: Search papers by ArXiv category
@@ -188,11 +205,13 @@ uv run tavily_server/tavily.py
 **Common Categories**: `cs.AI`, `cs.LG`, `cs.CL`, `math.ST`, `physics.gen-ph`
 
 **Usage**:
+
 ```bash
 uv run arxiv_server/arxiv.py
 ```
 
 **Example**:
+
 ```python
 {"tool": "search_papers", "args": {"query": "transformer neural networks", "max_results": 3}}
 {"tool": "search_by_category", "args": {"category": "cs.AI", "max_results": 5}}
@@ -203,17 +222,20 @@ uv run arxiv_server/arxiv.py
 **Location**: `wikipedia_server/`
 
 **Tools**:
+
 - `search_wikipedia(query, limit=5)`: Search Wikipedia articles
 - `get_wikipedia_summary(title)`: Get article summary
 - `get_wikipedia_content(title, section=None)`: Get full article or specific section
 - `get_random_wikipedia()`: Get random article
 
 **Usage**:
+
 ```bash
 uv run wikipedia_server/wikipedia.py
 ```
 
 **Example**:
+
 ```python
 {"tool": "search_wikipedia", "args": {"query": "machine learning", "limit": 3}}
 {"tool": "get_wikipedia_summary", "args": {"title": "Artificial intelligence"}}
@@ -253,31 +275,46 @@ Add to your `claude_desktop_config.json`:
   "mcpServers": {
     "math": {
       "command": "uv",
-      "args": ["run", "/path/to/math_server/math.py"],
+      "args": [
+        "run",
+        "/path/to/math_server/math.py"
+      ],
       "env": {}
     },
     "weather": {
       "command": "uv",
-      "args": ["run", "/path/to/weather_server/weather.py"],
+      "args": [
+        "run",
+        "/path/to/weather_server/weather.py"
+      ],
       "env": {
         "OPENWEATHERMAP_API_KEY": "your_api_key_here"
       }
     },
     "tavily": {
       "command": "uv",
-      "args": ["run", "/path/to/tavily_server/tavily.py"],
+      "args": [
+        "run",
+        "/path/to/tavily_server/tavily.py"
+      ],
       "env": {
         "TAVILY_API_KEY": "your_api_key_here"
       }
     },
     "arxiv": {
       "command": "uv",
-      "args": ["run", "/path/to/arxiv_server/arxiv.py"],
+      "args": [
+        "run",
+        "/path/to/arxiv_server/arxiv.py"
+      ],
       "env": {}
     },
     "wikipedia": {
       "command": "uv",
-      "args": ["run", "/path/to/wikipedia_server/wikipedia.py"],
+      "args": [
+        "run",
+        "/path/to/wikipedia_server/wikipedia.py"
+      ],
       "env": {}
     }
   }
@@ -287,17 +324,20 @@ Add to your `claude_desktop_config.json`:
 ## Example Workflows
 
 ### Research Workflow
+
 1. Search Wikipedia for background information
 2. Find recent papers on ArXiv
 3. Search for latest news/developments via Tavily
 4. Perform calculations related to findings
 
 ### Weather Planning
+
 1. Get current conditions for cities worldwide
 2. Get 5-day forecasts for travel destinations
 3. Compare weather across multiple locations using coordinates
 
 ### Academic Research
+
 1. Search ArXiv by category or author
 2. Get Wikipedia summaries for unfamiliar concepts
 3. Use math server for calculations in papers
@@ -360,13 +400,13 @@ Follow the pattern established in existing servers:
 ## API Keys and Environment Variables
 
 - **TAVILY_API_KEY**: Required for Tavily search functionality
-  - Get from: https://tavily.com/
-  - Used by: `tavily_server`
+    - Get from: https://tavily.com/
+    - Used by: `tavily_server`
 
 - **OPENWEATHERMAP_API_KEY**: Required for weather functionality
-  - Get from: https://openweathermap.org/api
-  - Used by: `weather_server`
-  - Free tier available with 1000 calls/day
+    - Get from: https://openweathermap.org/api
+    - Used by: `weather_server`
+    - Free tier available with 1000 calls/day
 
 ## Troubleshooting
 
@@ -379,9 +419,9 @@ Follow the pattern established in existing servers:
 3. **Weather server authentication errors**: Ensure `OPENWEATHERMAP_API_KEY` is set correctly and valid
 
 4. **Weather server returns no data**: Check that:
-   - API key is active and has available calls
-   - City name is spelled correctly
-   - Coordinates are valid (latitude: -90 to 90, longitude: -180 to 180)
+    - API key is active and has available calls
+    - City name is spelled correctly
+    - Coordinates are valid (latitude: -90 to 90, longitude: -180 to 180)
 
 5. **ArXiv search returns no results**: Try broader search terms or different categories
 
@@ -390,6 +430,7 @@ Follow the pattern established in existing servers:
 ### Debug Mode
 
 Run servers with debug output:
+
 ```bash
 uv run --verbose server_name/server.py
 ```

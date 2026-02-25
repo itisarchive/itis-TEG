@@ -1,9 +1,6 @@
 from typing import Any
 
 import pytest
-
-from pydantic import ValidationError
-
 from a2a.types import (
     A2AError,
     A2ARequest,
@@ -69,6 +66,7 @@ from a2a.types import (
     SetTaskPushNotificationConfigSuccessResponse,
     GetTaskPushNotificationConfigSuccessResponse,
 )
+from pydantic import ValidationError
 
 # --- Helper Data ---
 
@@ -168,6 +166,7 @@ JSONRPC_ERROR_DATA: dict[str, Any] = {
     'message': 'Invalid Request',
 }
 JSONRPC_SUCCESS_RESULT: dict[str, Any] = {'status': 'ok', 'data': [1, 2, 3]}
+
 
 # --- Test Functions ---
 
@@ -669,7 +668,7 @@ def test_send_message_streaming_status_update_response() -> None:
     assert not response.root.result.final
 
     with pytest.raises(
-        ValidationError
+            ValidationError
     ):  # Result is not a TaskStatusUpdateEvent
         SendMessageStreamingResponse.model_validate(
             {'jsonrpc': '2.0', 'result': {'wrong': 'data'}, 'id': 1}
@@ -773,8 +772,8 @@ def test_set_task_push_notification_response() -> None:
         'Basic',
     ]
     assert (
-        resp.root.result.pushNotificationConfig.authentication.credentials
-        == 'user:pass'
+            resp.root.result.pushNotificationConfig.authentication.credentials
+            == 'user:pass'
     )
 
     resp_data_err: dict[str, Any] = {
@@ -832,8 +831,8 @@ def test_get_task_push_notification_response() -> None:
         'Basic',
     ]
     assert (
-        resp.root.result.pushNotificationConfig.authentication.credentials
-        == 'user:pass'
+            resp.root.result.pushNotificationConfig.authentication.credentials
+            == 'user:pass'
     )
 
     resp_data_err: dict[str, Any] = {
@@ -922,7 +921,7 @@ def test_a2a_request_root_model() -> None:
         a2a_req_set_push_req.root.params, TaskPushNotificationConfig
     )
     assert (
-        a2a_req_set_push_req.root.method == 'tasks/pushNotificationConfig/set'
+            a2a_req_set_push_req.root.method == 'tasks/pushNotificationConfig/set'
     )
 
     # GetTaskPushNotificationConfigRequest
@@ -939,7 +938,7 @@ def test_a2a_request_root_model() -> None:
     )
     assert isinstance(a2a_req_get_push_req.root.params, TaskIdParams)
     assert (
-        a2a_req_get_push_req.root.method == 'tasks/pushNotificationConfig/get'
+            a2a_req_get_push_req.root.method == 'tasks/pushNotificationConfig/get'
     )
 
     # TaskResubscriptionRequest
@@ -1221,8 +1220,8 @@ def test_task_push_notification_config() -> None:
     )
     assert task_push_notification_config.taskId == 'task-123'
     assert (
-        task_push_notification_config.pushNotificationConfig
-        == push_notification_config
+            task_push_notification_config.pushNotificationConfig
+            == push_notification_config
     )
     assert task_push_notification_config.model_dump(exclude_none=True) == {
         'taskId': 'task-123',
@@ -1248,7 +1247,7 @@ def test_jsonrpc_message_valid():
     msg_int_id = JSONRPCMessage(jsonrpc='2.0', id=1)
     assert msg_int_id.jsonrpc == '2.0'
     assert (
-        msg_int_id.id == 1
+            msg_int_id.id == 1
     )  # Pydantic v2 keeps int if possible, but float is in type hint
 
     rpc_message = JSONRPCMessage(id=1)

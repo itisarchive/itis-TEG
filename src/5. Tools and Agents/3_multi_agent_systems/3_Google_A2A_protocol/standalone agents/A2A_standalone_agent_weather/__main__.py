@@ -1,11 +1,11 @@
 import logging
 import os
-import tomli
 
 import click
+import tomli
+from dotenv import load_dotenv
 
 from agent import Agent
-from task_manager import AgentTaskManager
 from common.server import A2AServer
 from common.types import (
     AgentCapabilities,
@@ -14,8 +14,7 @@ from common.types import (
     MissingAPIKeyError,
 )
 from common.utils.push_notification_auth import PushNotificationSenderAuth
-from dotenv import load_dotenv
-
+from task_manager import AgentTaskManager
 
 load_dotenv()
 
@@ -50,7 +49,7 @@ def main(host, port):
             streaming=config["agent_card"]["capabilities"]["streaming"],
             pushNotifications=config["agent_card"]["capabilities"]["pushNotifications"]
         )
-        
+
         # Create skills from config
         skills = []
         for skill_config in config["agent_card"]["skills"]:
@@ -62,7 +61,7 @@ def main(host, port):
                 examples=skill_config["examples"],
             )
             skills.append(skill)
-        
+
         # Create agent card from config
         agent_card = AgentCard(
             name=config["agent_card"]["name"],

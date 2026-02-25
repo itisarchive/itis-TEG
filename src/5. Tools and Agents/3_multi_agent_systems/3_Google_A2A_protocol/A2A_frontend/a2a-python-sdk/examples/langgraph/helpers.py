@@ -31,7 +31,7 @@ def create_task_obj(message_send_params: MessageSendParams) -> Task:
 
 
 def update_task_with_agent_response(
-    task: Task, agent_response: dict[str, Any]
+        task: Task, agent_response: dict[str, Any]
 ) -> None:
     """Updates the provided task with the agent response."""
     task.status.timestamp = datetime.now().isoformat()
@@ -53,8 +53,8 @@ def update_task_with_agent_response(
 
 
 def process_streaming_agent_response(
-    task: Task,
-    agent_response: dict[str, Any],
+        task: Task,
+        agent_response: dict[str, Any],
 ) -> tuple[TaskArtifactUpdateEvent | None, TaskStatusUpdateEvent]:
     """Processes the streaming agent responses and returns TaskArtifactUpdateEvent and TaskStatusUpdateEvent."""
     is_task_complete = agent_response['is_task_complete']

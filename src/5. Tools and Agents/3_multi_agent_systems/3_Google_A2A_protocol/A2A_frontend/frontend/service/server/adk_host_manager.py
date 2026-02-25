@@ -66,8 +66,8 @@ class ADKHostManager(ApplicationManager):
         self.app_name = 'A2A'
         self.api_key = api_key or os.environ.get('GOOGLE_API_KEY', '')
         self.uses_vertex_ai = (
-            uses_vertex_ai
-            or os.environ.get('GOOGLE_GENAI_USE_VERTEXAI', '').upper() == 'TRUE'
+                uses_vertex_ai
+                or os.environ.get('GOOGLE_GENAI_USE_VERTEXAI', '').upper() == 'TRUE'
         )
 
         # Set environment variables based on auth method
@@ -169,17 +169,17 @@ class ADKHostManager(ApplicationManager):
         }
         last_message_id = get_last_message_id(message)
         if (
-            last_message_id
-            and last_message_id in self._task_map
-            and task_still_open(
-                next(
-                    filter(
-                        lambda x: x.id == self._task_map[last_message_id],
-                        self._tasks,
-                    ),
-                    None,
-                )
+                last_message_id
+                and last_message_id in self._task_map
+                and task_still_open(
+            next(
+                filter(
+                    lambda x: x.id == self._task_map[last_message_id],
+                    self._tasks,
+                ),
+                None,
             )
+        )
         ):
             state_update['task_id'] = self._task_map[last_message_id]
         # Need to upsert session state now, only way is to append an event.
@@ -193,9 +193,9 @@ class ADKHostManager(ApplicationManager):
             ),
         )
         async for event in self._host_runner.run_async(
-            user_id=self.user_id,
-            session_id=conversation_id,
-            new_message=self.adk_content_from_message(message),
+                user_id=self.user_id,
+                session_id=conversation_id,
+                new_message=self.adk_content_from_message(message),
         ):
             self.add_event(
                 Event(
@@ -368,7 +368,7 @@ class ADKHostManager(ApplicationManager):
         return current_task
 
     def process_artifact_event(
-        self, current_task: Task, task_update_event: TaskArtifactUpdateEvent
+            self, current_task: Task, task_update_event: TaskArtifactUpdateEvent
     ):
         artifact = task_update_event.artifact
         if not artifact.append:
@@ -401,7 +401,7 @@ class ADKHostManager(ApplicationManager):
         self._events[event.id] = event
 
     def get_conversation(
-        self, conversation_id: str | None
+            self, conversation_id: str | None
     ) -> Conversation | None:
         if not conversation_id:
             return None
@@ -492,7 +492,7 @@ class ADKHostManager(ApplicationManager):
         return types.Content(parts=parts, role=message.role)
 
     def adk_content_to_message(
-        self, content: types.Content, conversation_id: str
+            self, content: types.Content, conversation_id: str
     ) -> Message:
         parts: list[Part] = []
         if not content.parts:
@@ -548,7 +548,7 @@ class ADKHostManager(ApplicationManager):
         )
 
     def _handle_function_response(
-        self, part: types.Part, conversation_id: str
+            self, part: types.Part, conversation_id: str
     ) -> list[Part]:
         parts = []
         try:
@@ -604,15 +604,15 @@ def get_last_message_id(m: Message | None) -> str | None:
 
 
 def get_conversation_id(
-    t: (
-        Task | TaskStatusUpdateEvent | TaskArtifactUpdateEvent | Message | None
-    ),
+        t: (
+                Task | TaskStatusUpdateEvent | TaskArtifactUpdateEvent | Message | None
+        ),
 ) -> str | None:
     if (
-        t
-        and hasattr(t, 'metadata')
-        and t.metadata
-        and 'conversation_id' in t.metadata
+            t
+            and hasattr(t, 'metadata')
+            and t.metadata
+            and 'conversation_id' in t.metadata
     ):
         return t.metadata['conversation_id']
     return None

@@ -1,5 +1,7 @@
-from agent import WikipediaAgent
 from dotenv import load_dotenv
+
+from agent import WikipediaAgent
+
 load_dotenv()
 
 agent = WikipediaAgent()

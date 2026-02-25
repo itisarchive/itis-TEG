@@ -6,7 +6,7 @@ from common.types import (
 
 
 def are_modalities_compatible(
-    server_output_modes: list[str], client_output_modes: list[str]
+        server_output_modes: list[str], client_output_modes: list[str]
 ):
     """Modalities are compatible if they are both non-empty
     and there is at least one common element.

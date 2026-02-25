@@ -2,18 +2,19 @@ import asyncio
 import threading
 import traceback
 
-from common.utils.push_notification_auth import PushNotificationReceiverAuth
 from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import Response
 
+from common.utils.push_notification_auth import PushNotificationReceiverAuth
+
 
 class PushNotificationListener:
     def __init__(
-        self,
-        host,
-        port,
-        notification_receiver_auth: PushNotificationReceiverAuth,
+            self,
+            host,
+            port,
+            notification_receiver_auth: PushNotificationReceiverAuth,
     ):
         self.host = host
         self.port = port
@@ -69,7 +70,7 @@ class PushNotificationListener:
         data = await request.json()
         try:
             if not await self.notification_receiver_auth.verify_push_notification(
-                request
+                    request
             ):
                 print('push notification verification failed')
                 return None

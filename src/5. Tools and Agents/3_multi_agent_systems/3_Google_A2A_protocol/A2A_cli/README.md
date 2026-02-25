@@ -1,6 +1,8 @@
 ## CLI
 
-The CLI is a small host application that demonstrates the capabilities of an A2AClient. It supports reading a server's AgentCard and text-based collaboration with a remote agent. All content received from the A2A server is printed to the console. 
+The CLI is a small host application that demonstrates the capabilities of an A2AClient. It supports reading a server's
+AgentCard and text-based collaboration with a remote agent. All content received from the A2A server is printed to the
+console.
 
 The client will use streaming if the server supports it.
 

@@ -1,15 +1,12 @@
 import dataclasses
 import json
 import uuid
-
 from typing import Any, Literal
 
 import mesop as me
-
 from common.types import DataPart, Message, TextPart
 from state.host_agent_service import SendMessage
 from state.state import AppState, StateMessage
-
 
 ROW_GAP = 15
 BOX_PADDING = 20
@@ -36,7 +33,7 @@ class FormElement:
         'time',
         'url',
         'week',
-        # These are custom types that dictate non input elements.
+            # These are custom types that dictate non input elements.
         'radio',
         'checkbox',
         'date-picker',
@@ -110,20 +107,20 @@ def render_form(message: StateMessage, app_state: AppState):
 def render_form_card(message: StateMessage, data: dict[str, Any] | None):
     """Renders the result of a previous form as a card"""
     with me.box(
-        style=me.Style(
-            padding=me.Padding.all(BOX_PADDING),
-            max_width='75vw',
-            background=me.theme_var('surface'),
-            border_radius=15,
-            margin=me.Margin(top=5, bottom=20, left=5, right=5),
-            justify_content=(
-                'end' if message.role == 'agent' else 'space-between'
-            ),
-            box_shadow=(
-                '0 1px 2px 0 rgba(60, 64, 67, 0.3), '
-                '0 1px 3px 1px rgba(60, 64, 67, 0.15)'
-            ),
-        )
+            style=me.Style(
+                padding=me.Padding.all(BOX_PADDING),
+                max_width='75vw',
+                background=me.theme_var('surface'),
+                border_radius=15,
+                margin=me.Margin(top=5, bottom=20, left=5, right=5),
+                justify_content=(
+                        'end' if message.role == 'agent' else 'space-between'
+                ),
+                box_shadow=(
+                        '0 1px 2px 0 rgba(60, 64, 67, 0.3), '
+                        '0 1px 3px 1px rgba(60, 64, 67, 0.15)'
+                ),
+            )
     ):
         if data:
             # Build markdown result
@@ -139,7 +136,7 @@ def render_form_card(message: StateMessage, data: dict[str, Any] | None):
 
 
 def generate_form_elements(
-    message: StateMessage,
+        message: StateMessage,
 ) -> tuple[str, list[FormElement]]:
     """Returns a declarative structure for a form to generate"""
     # Get the message part with the form information.
@@ -159,7 +156,7 @@ def make_form_elements(form_info: dict[str, Any]) -> list[FormElement]:
     # supplement it.
     fields = form_info['form']['properties']
     if 'required' in form_info['form'] and isinstance(
-        form_info['form']['required'], list
+            form_info['form']['required'], list
     ):
         for field in form_info['form']['required']:
             if field in fields:
@@ -192,17 +189,17 @@ def instructions_for_form(form_info: dict[str, Any]) -> str:
 
 def render_structure(id: str, elements: list[FormElement], instructions: str):
     with me.box(
-        style=me.Style(
-            padding=me.Padding.all(BOX_PADDING),
-            max_width='75vw',
-            background=me.theme_var('surface'),
-            border_radius=15,
-            margin=me.Margin(top=5, bottom=20, left=5, right=5),
-            box_shadow=(
-                '0 1px 2px 0 rgba(60, 64, 67, 0.3), '
-                '0 1px 3px 1px rgba(60, 64, 67, 0.15)'
-            ),
-        )
+            style=me.Style(
+                padding=me.Padding.all(BOX_PADDING),
+                max_width='75vw',
+                background=me.theme_var('surface'),
+                border_radius=15,
+                margin=me.Margin(top=5, bottom=20, left=5, right=5),
+                box_shadow=(
+                        '0 1px 2px 0 rgba(60, 64, 67, 0.3), '
+                        '0 1px 3px 1px rgba(60, 64, 67, 0.15)'
+                ),
+            )
     ):
         if instructions:
             me.text(
@@ -219,10 +216,10 @@ def render_structure(id: str, elements: list[FormElement], instructions: str):
 
 
 def input_field(
-    *,
-    id: str,
-    element: FormElement,
-    width: str | int = '100%',
+        *,
+        id: str,
+        element: FormElement,
+        width: str | int = '100%',
 ):
     """Renders an individual form input field"""
     state = me.state(State)
@@ -261,12 +258,12 @@ def input_field(
 def form_group(flex_direction: Literal['row', 'column'] = 'row'):
     """Groups input fields together visually"""
     with me.box(
-        style=me.Style(
-            display='flex',
-            flex_direction=flex_direction,
-            gap=ROW_GAP,
-            width='100%',
-        )
+            style=me.Style(
+                display='flex',
+                flex_direction=flex_direction,
+                gap=ROW_GAP,
+                width='100%',
+            )
     ):
         me.slot()
 

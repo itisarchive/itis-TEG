@@ -1,7 +1,6 @@
 import json
 
 import httpx
-
 from common.types import (
     A2AClientJSONError,
     AgentCard,

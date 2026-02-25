@@ -38,7 +38,7 @@ class ConversationServer:
         # Get API key from environment
         api_key = os.environ.get('GOOGLE_API_KEY', '')
         uses_vertex_ai = (
-            os.environ.get('GOOGLE_GENAI_USE_VERTEXAI', '').upper() == 'TRUE'
+                os.environ.get('GOOGLE_GENAI_USE_VERTEXAI', '').upper() == 'TRUE'
         )
 
         if agent_manager.upper() == 'ADK':

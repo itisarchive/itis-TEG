@@ -2,7 +2,6 @@ import asyncio
 
 import mesop as me
 import pandas as pd
-
 from state.host_agent_service import GetEvents, convert_event_to_state
 
 
@@ -43,11 +42,11 @@ def event_list():
         columns=['Conversation ID', 'Actor', 'Role', 'Id', 'Content'],
     )
     with me.box(
-        style=me.Style(
-            display='flex',
-            justify_content='space-between',
-            flex_direction='column',
-        )
+            style=me.Style(
+                display='flex',
+                justify_content='space-between',
+                flex_direction='column',
+            )
     ):
         me.table(
             df,

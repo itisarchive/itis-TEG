@@ -1,7 +1,6 @@
 import os
 
 import mesop as me
-
 from state.host_agent_service import UpdateApiKey
 from state.state import AppState
 
@@ -42,7 +41,7 @@ def api_key_dialog():
 
     with dialog(state.api_key_dialog_open):
         with me.box(
-            style=me.Style(display='flex', flex_direction='column', gap=12)
+                style=me.Style(display='flex', flex_direction='column', gap=12)
         ):
             me.text(
                 'Google API Key Required',

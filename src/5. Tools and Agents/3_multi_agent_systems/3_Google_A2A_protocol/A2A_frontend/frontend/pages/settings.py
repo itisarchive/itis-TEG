@@ -1,7 +1,6 @@
 import asyncio
 
 import mesop as me
-
 from components.header import header
 from components.page_scaffold import page_frame, page_scaffold
 from state.host_agent_service import UpdateApiKey
@@ -55,21 +54,21 @@ def settings_page_content():
             with header('Settings', 'settings'):
                 pass
             with me.box(
-                style=me.Style(
-                    display='flex',
-                    justify_content='space-between',
-                    flex_direction='column',
-                    gap=30,
-                )
+                    style=me.Style(
+                        display='flex',
+                        justify_content='space-between',
+                        flex_direction='column',
+                        gap=30,
+                    )
             ):
                 # API Key Settings Section
                 if not app_state.uses_vertex_ai:
                     with me.box(
-                        style=me.Style(
-                            display='flex',
-                            flex_direction='column',
-                            margin=me.Margin(bottom=30),
-                        )
+                            style=me.Style(
+                                display='flex',
+                                flex_direction='column',
+                                margin=me.Margin(bottom=30),
+                            )
                     ):
                         me.text(
                             'Google API Key',
@@ -81,13 +80,13 @@ def settings_page_content():
                         )
 
                         with me.box(
-                            style=me.Style(
-                                display='flex',
-                                flex_direction='row',
-                                gap=10,
-                                align_items='center',
-                                margin=me.Margin(bottom=5),
-                            )
+                                style=me.Style(
+                                    display='flex',
+                                    flex_direction='row',
+                                    gap=10,
+                                    align_items='center',
+                                    margin=me.Margin(bottom=5),
+                                )
                         ):
                             me.input(
                                 label='API Key',
@@ -110,20 +109,20 @@ def settings_page_content():
                         # Success message
                         if update_status.show_success:
                             with me.box(
-                                style=me.Style(
-                                    background=me.theme_var(
-                                        'success-container'
-                                    ),
-                                    padding=me.Padding(
-                                        top=10, bottom=10, left=10, right=10
-                                    ),
-                                    border_radius=4,
-                                    margin=me.Margin(top=10),
-                                    display='flex',
-                                    flex_direction='row',
-                                    align_items='center',
-                                    width='400px',
-                                )
+                                    style=me.Style(
+                                        background=me.theme_var(
+                                            'success-container'
+                                        ),
+                                        padding=me.Padding(
+                                            top=10, bottom=10, left=10, right=10
+                                        ),
+                                        border_radius=4,
+                                        margin=me.Margin(top=10),
+                                        display='flex',
+                                        flex_direction='row',
+                                        align_items='center',
+                                        width='400px',
+                                    )
                             ):
                                 me.icon(
                                     'check_circle',
@@ -145,7 +144,7 @@ def settings_page_content():
 
                     # Add spacing instead of divider with style
                     with me.box(
-                        style=me.Style(margin=me.Margin(top=10, bottom=10))
+                            style=me.Style(margin=me.Margin(top=10, bottom=10))
                     ):
                         me.divider()
 

@@ -2,7 +2,6 @@ import json
 
 import mesop as me
 import pandas as pd
-
 from state.state import ContentPart, SessionTask, StateTask
 
 
@@ -27,10 +26,10 @@ def task_card(tasks: list[SessionTask]):
         df_data['Output'].append(flatten_artifacts(task.task))
     df = pd.DataFrame(pd.DataFrame(df_data), columns=columns)
     with me.box(
-        style=me.Style(
-            display='flex',
-            justify_content='space-between',
-        )
+            style=me.Style(
+                display='flex',
+                justify_content='space-between',
+            )
     ):
         me.table(
             df,

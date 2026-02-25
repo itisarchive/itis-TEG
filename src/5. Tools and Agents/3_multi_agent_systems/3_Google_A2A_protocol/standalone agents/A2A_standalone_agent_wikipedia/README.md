@@ -45,6 +45,7 @@ uv run .
 ## Development
 
 This project follows Configuration Driven Development practices:
+
 - Agent parameters are read from `config.toml`
 - Agent card details are defined in `config.toml`
 - Code is decoupled from configuration

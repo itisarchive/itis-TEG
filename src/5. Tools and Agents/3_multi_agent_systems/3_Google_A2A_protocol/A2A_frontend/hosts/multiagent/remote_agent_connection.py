@@ -1,5 +1,4 @@
 import uuid
-
 from collections.abc import Callable
 
 from common.client import A2AClient
@@ -12,7 +11,6 @@ from common.types import (
     TaskStatus,
     TaskStatusUpdateEvent,
 )
-
 
 TaskCallbackArg = Task | TaskStatusUpdateEvent | TaskArtifactUpdateEvent
 TaskUpdateCallback = Callable[[TaskCallbackArg, AgentCard], Task]
@@ -33,9 +31,9 @@ class RemoteAgentConnections:
         return self.card
 
     async def send_task(
-        self,
-        request: TaskSendParams,
-        task_callback: TaskUpdateCallback | None,
+            self,
+            request: TaskSendParams,
+            task_callback: TaskUpdateCallback | None,
     ) -> Task | None:
         if self.card.capabilities.streaming:
             task = None
@@ -53,15 +51,15 @@ class RemoteAgentConnections:
                     self.card,
                 )
             async for response in self.agent_client.send_task_streaming(
-                request.model_dump()
+                    request.model_dump()
             ):
                 merge_metadata(response.result, request)
                 # For task status updates, we need to propagate metadata and provide
                 # a unique message id.
                 if (
-                    hasattr(response.result, 'status')
-                    and hasattr(response.result.status, 'message')
-                    and response.result.status.message
+                        hasattr(response.result, 'status')
+                        and hasattr(response.result.status, 'message')
+                        and response.result.status.message
                 ):
                     merge_metadata(
                         response.result.status.message, request.message
@@ -83,9 +81,9 @@ class RemoteAgentConnections:
         # For task status updates, we need to propagate metadata and provide
         # a unique message id.
         if (
-            hasattr(response.result, 'status')
-            and hasattr(response.result.status, 'message')
-            and response.result.status.message
+                hasattr(response.result, 'status')
+                and hasattr(response.result.status, 'message')
+                and response.result.status.message
         ):
             merge_metadata(response.result.status.message, request.message)
             m = response.result.status.message

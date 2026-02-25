@@ -1,16 +1,16 @@
 [project]
-name = "multi-agent-react"
-version = "0.1.0"
-description = "Add your description here"
+name = "5-3-1-multi-agent-react"
+version = "1.0.0"
+description = "A multi-tool agent built using the ReAct pattern, designed for execution in LangGraph Studio"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "arxiv>=2.2.0",
     "langchain-community>=0.3.29",
     "langchain-openai>=0.3.32",
-    "langgraph>=0.6.6",
     "langgraph-cli[inmem]>=0.4.1",
     "langgraph-supervisor>=0.0.29",
+    "langgraph>=0.6.6",
     "pyowm>=3.5.0",
     "python-dotenv>=1.1.1",
     "wikipedia>=1.4.0",

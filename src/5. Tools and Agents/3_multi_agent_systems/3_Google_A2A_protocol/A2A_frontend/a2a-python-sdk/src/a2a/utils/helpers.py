@@ -2,7 +2,6 @@ import logging
 
 from a2a.types import Artifact, Part, Task, TaskArtifactUpdateEvent, TextPart
 
-
 logger = logging.getLogger(__name__)
 
 

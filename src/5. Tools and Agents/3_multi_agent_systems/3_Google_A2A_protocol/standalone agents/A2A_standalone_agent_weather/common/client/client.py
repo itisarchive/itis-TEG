@@ -1,13 +1,8 @@
 import json
-
 from collections.abc import AsyncIterable
 from typing import Any
 
 import httpx
-
-from httpx._types import TimeoutTypes
-from httpx_sse import connect_sse
-
 from common.types import (
     A2AClientHTTPError,
     A2AClientJSONError,
@@ -26,14 +21,16 @@ from common.types import (
     SetTaskPushNotificationRequest,
     SetTaskPushNotificationResponse,
 )
+from httpx._types import TimeoutTypes
+from httpx_sse import connect_sse
 
 
 class A2AClient:
     def __init__(
-        self,
-        agent_card: AgentCard = None,
-        url: str = None,
-        timeout: TimeoutTypes = 60.0,
+            self,
+            agent_card: AgentCard = None,
+            url: str = None,
+            timeout: TimeoutTypes = 60.0,
     ):
         if agent_card:
             self.url = agent_card.url
@@ -48,12 +45,12 @@ class A2AClient:
         return SendTaskResponse(**await self._send_request(request))
 
     async def send_task_streaming(
-        self, payload: dict[str, Any]
+            self, payload: dict[str, Any]
     ) -> AsyncIterable[SendTaskStreamingResponse]:
         request = SendTaskStreamingRequest(params=payload)
         with httpx.Client(timeout=None) as client:
             with connect_sse(
-                client, 'POST', self.url, json=request.model_dump()
+                    client, 'POST', self.url, json=request.model_dump()
             ) as event_source:
                 try:
                     for sse in event_source.iter_sse():
@@ -86,7 +83,7 @@ class A2AClient:
         return CancelTaskResponse(**await self._send_request(request))
 
     async def set_task_callback(
-        self, payload: dict[str, Any]
+            self, payload: dict[str, Any]
     ) -> SetTaskPushNotificationResponse:
         request = SetTaskPushNotificationRequest(params=payload)
         return SetTaskPushNotificationResponse(
@@ -94,7 +91,7 @@ class A2AClient:
         )
 
     async def get_task_callback(
-        self, payload: dict[str, Any]
+            self, payload: dict[str, Any]
     ) -> GetTaskPushNotificationResponse:
         request = GetTaskPushNotificationRequest(params=payload)
         return GetTaskPushNotificationResponse(

@@ -2,11 +2,9 @@ import asyncio
 import base64
 import os
 import urllib
-
 from uuid import uuid4
 
 import asyncclick as click
-
 from common.client import A2ACardResolver, A2AClient
 from common.types import TaskState
 from common.utils.push_notification_auth import PushNotificationReceiverAuth
@@ -19,11 +17,11 @@ from common.utils.push_notification_auth import PushNotificationReceiverAuth
 @click.option('--use_push_notifications', default=False)
 @click.option('--push_notification_receiver', default='http://localhost:5000')
 async def cli(
-    agent,
-    session,
-    history,
-    use_push_notifications: bool,
-    push_notification_receiver: str,
+        agent,
+        session,
+        history,
+        use_push_notifications: bool,
+        push_notification_receiver: str,
 ):
     card_resolver = A2ACardResolver(agent)
     card = card_resolver.get_agent_card()
@@ -87,13 +85,13 @@ async def cli(
 
 
 async def completeTask(
-    client: A2AClient,
-    streaming,
-    use_push_notifications: bool,
-    notification_receiver_host: str,
-    notification_receiver_port: int,
-    taskId,
-    sessionId,
+        client: A2AClient,
+        streaming,
+        use_push_notifications: bool,
+        notification_receiver_host: str,
+        notification_receiver_port: int,
+        taskId,
+        sessionId,
 ):
     prompt = click.prompt(
         '\nWhat do you want to send to the agent? (:q or quit to exit)'

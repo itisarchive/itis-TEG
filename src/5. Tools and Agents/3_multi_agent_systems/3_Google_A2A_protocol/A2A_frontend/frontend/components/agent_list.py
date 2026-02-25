@@ -7,7 +7,7 @@ from state.agent_state import AgentState
 
 @me.component
 def agents_list(
-    agents: list[AgentCard],
+        agents: list[AgentCard],
 ):
     """Agents list component."""
     df_data = {
@@ -42,11 +42,11 @@ def agents_list(
         ],
     )
     with me.box(
-        style=me.Style(
-            display='flex',
-            justify_content='space-between',
-            flex_direction='column',
-        )
+            style=me.Style(
+                display='flex',
+                justify_content='space-between',
+                flex_direction='column',
+            )
     ):
         me.table(
             df,
@@ -58,16 +58,16 @@ def agents_list(
             },
         )
         with me.content_button(
-            type='raised',
-            on_click=add_agent,
-            key='new_agent',
-            style=me.Style(
-                display='flex',
-                flex_direction='row',
-                gap=5,
-                align_items='center',
-                margin=me.Margin(top=10),
-            ),
+                type='raised',
+                on_click=add_agent,
+                key='new_agent',
+                style=me.Style(
+                    display='flex',
+                    flex_direction='row',
+                    gap=5,
+                    align_items='center',
+                    margin=me.Margin(top=10),
+                ),
         ):
             me.icon(icon='upload')
 

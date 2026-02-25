@@ -1,15 +1,7 @@
 import json
 import logging
-
 from collections.abc import AsyncGenerator
 from typing import Any
-
-from pydantic import ValidationError
-from sse_starlette.sse import EventSourceResponse
-from starlette.applications import Starlette
-from starlette.requests import Request
-from starlette.responses import JSONResponse, Response
-from starlette.routing import Route
 
 from a2a.server.errors import MethodNotImplementedError
 from a2a.server.request_handler import A2ARequestHandler
@@ -33,7 +25,12 @@ from a2a.types import (
     TaskResubscriptionRequest,
     UnsupportedOperationError,
 )
-
+from pydantic import ValidationError
+from sse_starlette.sse import EventSourceResponse
+from starlette.applications import Starlette
+from starlette.requests import Request
+from starlette.responses import JSONResponse, Response
+from starlette.routing import Route
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +43,7 @@ class A2AApplication:
     """
 
     def __init__(
-        self, agent_card: AgentCard, request_handler: A2ARequestHandler
+            self, agent_card: AgentCard, request_handler: A2ARequestHandler
     ):
         """Initializes the A2AApplication.
 
@@ -58,7 +55,7 @@ class A2AApplication:
         self.request_handler = request_handler
 
     def _generate_error_response(
-        self, request_id: str | int | None, error: JSONRPCError | A2AError
+            self, request_id: str | int | None, error: JSONRPCError | A2AError
     ) -> JSONResponse:
         """Creates a JSONResponse for a JSON-RPC error."""
         error_resp = JSONRPCErrorResponse(
@@ -69,7 +66,7 @@ class A2AApplication:
         log_level = (
             logging.ERROR
             if not isinstance(error, A2AError)
-            or isinstance(error.root, InternalError)
+               or isinstance(error.root, InternalError)
             else logging.WARNING
         )
         logger.log(
@@ -102,8 +99,8 @@ class A2AApplication:
             request_obj = a2a_request.root
 
             if isinstance(
-                request_obj,
-                TaskResubscriptionRequest | SendMessageStreamingRequest,
+                    request_obj,
+                    TaskResubscriptionRequest | SendMessageStreamingRequest,
             ):
                 return await self._process_streaming_request(
                     request_id, a2a_request
@@ -132,7 +129,7 @@ class A2AApplication:
             )
 
     async def _process_streaming_request(
-        self, request_id: str | int | None, a2a_request: A2ARequest
+            self, request_id: str | int | None, a2a_request: A2ARequest
     ) -> Response:
         """Processes streaming requests.
 
@@ -143,8 +140,8 @@ class A2AApplication:
         request_obj = a2a_request.root
         handler_result: Any = None
         if isinstance(
-            request_obj,
-            SendMessageStreamingRequest,
+                request_obj,
+                SendMessageStreamingRequest,
         ):
             handler_result = self.request_handler.on_message_send_stream(
                 request_obj
@@ -157,7 +154,7 @@ class A2AApplication:
         return self._create_response(await handler_result)
 
     async def _process_non_streaming_request(
-        self, request_id: str | int | None, a2a_request: A2ARequest
+            self, request_id: str | int | None, a2a_request: A2ARequest
     ) -> Response:
         """Processes non-streaming requests.
 
@@ -206,10 +203,10 @@ class A2AApplication:
         return self._create_response(handler_result)
 
     def _create_response(
-        self,
-        handler_result: AsyncGenerator[SendMessageStreamingResponse, None]
-        | JSONRPCErrorResponse
-        | JSONRPCResponse,
+            self,
+            handler_result: AsyncGenerator[SendMessageStreamingResponse, None]
+                            | JSONRPCErrorResponse
+                            | JSONRPCResponse,
     ) -> Response:
         """Creates a Starlette Response based on the result from the request handler.
 
@@ -228,7 +225,7 @@ class A2AApplication:
         if isinstance(handler_result, AsyncGenerator):
             # Result is a stream of SendMessageStreamingResponse objects
             async def event_generator(
-                stream: AsyncGenerator[SendMessageStreamingResponse, None],
+                    stream: AsyncGenerator[SendMessageStreamingResponse, None],
             ) -> AsyncGenerator[dict[str, str], None]:
                 async for item in stream:
                     yield {'data': item.root.model_dump_json(exclude_none=True)}
@@ -253,10 +250,10 @@ class A2AApplication:
         )
 
     def build(
-        self,
-        agent_card_url: str = '/.well-known/agent.json',
-        rpc_url: str = '/',
-        **kwargs: Any,
+            self,
+            agent_card_url: str = '/.well-known/agent.json',
+            rpc_url: str = '/',
+            **kwargs: Any,
     ) -> Starlette:
         """Builds and returns the Starlette application instance.
 

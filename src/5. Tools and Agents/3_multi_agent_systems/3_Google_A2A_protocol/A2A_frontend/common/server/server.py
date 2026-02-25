@@ -1,14 +1,7 @@
 import json
 import logging
-
 from collections.abc import AsyncIterable
 from typing import Any
-
-from pydantic import ValidationError
-from sse_starlette.sse import EventSourceResponse
-from starlette.applications import Starlette
-from starlette.requests import Request
-from starlette.responses import JSONResponse
 
 from common.server.task_manager import TaskManager
 from common.types import (
@@ -26,19 +19,23 @@ from common.types import (
     SetTaskPushNotificationRequest,
     TaskResubscriptionRequest,
 )
-
+from pydantic import ValidationError
+from sse_starlette.sse import EventSourceResponse
+from starlette.applications import Starlette
+from starlette.requests import Request
+from starlette.responses import JSONResponse
 
 logger = logging.getLogger(__name__)
 
 
 class A2AServer:
     def __init__(
-        self,
-        host='0.0.0.0',
-        port=5000,
-        endpoint='/',
-        agent_card: AgentCard = None,
-        task_manager: TaskManager = None,
+            self,
+            host='0.0.0.0',
+            port=5000,
+            endpoint='/',
+            agent_card: AgentCard = None,
+            task_manager: TaskManager = None,
     ):
         self.host = host
         self.port = port
@@ -122,7 +119,7 @@ class A2AServer:
         )
 
     def _create_response(
-        self, result: Any
+            self, result: Any
     ) -> JSONResponse | EventSourceResponse:
         if isinstance(result, AsyncIterable):
 

@@ -1,9 +1,7 @@
 import json
-
 from typing import Any
 
 import httpx
-
 from service.types import (
     AgentClientHTTPError,
     AgentClientJSONError,
@@ -34,7 +32,7 @@ class ConversationClient:
         self.base_url = base_url.rstrip('/')
 
     async def send_message(
-        self, payload: SendMessageRequest
+            self, payload: SendMessageRequest
     ) -> SendMessageResponse:
         return SendMessageResponse(**await self._send_request(payload))
 
@@ -55,12 +53,12 @@ class ConversationClient:
                 raise AgentClientJSONError(str(e)) from e
 
     async def create_conversation(
-        self, payload: CreateConversationRequest
+            self, payload: CreateConversationRequest
     ) -> CreateConversationResponse:
         return CreateConversationResponse(**await self._send_request(payload))
 
     async def list_conversation(
-        self, payload: ListConversationRequest
+            self, payload: ListConversationRequest
     ) -> ListConversationResponse:
         return ListConversationResponse(**await self._send_request(payload))
 
@@ -68,12 +66,12 @@ class ConversationClient:
         return GetEventResponse(**await self._send_request(payload))
 
     async def list_messages(
-        self, payload: ListMessageRequest
+            self, payload: ListMessageRequest
     ) -> ListMessageResponse:
         return ListMessageResponse(**await self._send_request(payload))
 
     async def get_pending_messages(
-        self, payload: PendingMessageRequest
+            self, payload: PendingMessageRequest
     ) -> PendingMessageResponse:
         return PendingMessageResponse(**await self._send_request(payload))
 
@@ -81,7 +79,7 @@ class ConversationClient:
         return ListTaskResponse(**await self._send_request(payload))
 
     async def register_agent(
-        self, payload: RegisterAgentRequest
+            self, payload: RegisterAgentRequest
     ) -> RegisterAgentResponse:
         return RegisterAgentResponse(**await self._send_request(payload))
 

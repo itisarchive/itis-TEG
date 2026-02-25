@@ -8,7 +8,6 @@ from a2a.server.request_handler import (
 from a2a.server.server import A2AServer
 from a2a.server.task_store import InMemoryTaskStore, TaskStore
 
-
 __all__ = [
     'A2AApplication',
     'A2ARequestHandler',

@@ -3,7 +3,6 @@ from dataclasses import asdict, dataclass
 from typing import Any
 
 import mesop.labs as mel
-
 from state.state import AppState
 
 
@@ -15,10 +14,10 @@ class AsyncAction:
 
 @mel.web_component(path='./async_poller.js')
 def async_poller(
-    *,
-    trigger_event: Callable[[mel.WebEvent], Any],
-    action: AsyncAction | None = None,
-    key: str | None = None,
+        *,
+        trigger_event: Callable[[mel.WebEvent], Any],
+        action: AsyncAction | None = None,
+        key: str | None = None,
 ):
     """Creates an invisible component that will delay state changes asynchronously.
 

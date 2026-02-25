@@ -1,5 +1,3 @@
-from agent_executor import HelloWorldAgentExecutor
-
 from a2a.server import A2AServer, DefaultA2ARequestHandler
 from a2a.types import (
     AgentAuthentication,
@@ -8,6 +6,7 @@ from a2a.types import (
     AgentSkill,
 )
 
+from agent_executor import HelloWorldAgentExecutor
 
 if __name__ == '__main__':
     skill = AgentSkill(

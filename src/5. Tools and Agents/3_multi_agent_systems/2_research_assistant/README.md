@@ -1,6 +1,7 @@
 # Research Assistant
 
-A LangGraph-based multi-agent research assistant that creates well-researched articles through a collaborative workflow of specialized AI agents.
+A LangGraph-based multi-agent research assistant that creates well-researched articles through a collaborative workflow
+of specialized AI agents.
 
 ## Overview
 
@@ -63,6 +64,7 @@ Try these research questions to test the system:
 ## Architecture
 
 ### Agent Workflow
+
 ```
 search → tools → search (loop until complete)
       ↓
@@ -103,6 +105,7 @@ uv pip list --outdated
 ### Modifying Agent Prompts
 
 Edit the system messages in `config/prompts.toml`:
+
 - `[search]` - Search strategy and formatting
 - `[outliner]` - Outline structure requirements
 - `[writer]` - Article format and revision handling
@@ -125,8 +128,8 @@ uv run python agent.py
 1. **Deprecation Warning**: TavilySearchResults deprecation is expected, functionality remains intact
 
 2. **Graph Visualization**: If the writer-editor feedback loop isn't visible in LangGraph Studio:
-   - Ensure you're using LangGraph 0.6.7+ and API 0.4.29+
-   - The conditional edges use explicit path mapping for proper visualization
+    - Ensure you're using LangGraph 0.6.7+ and API 0.4.29+
+    - The conditional edges use explicit path mapping for proper visualization
 
 3. **API Keys**: Verify all required environment variables are set in `.env`
 

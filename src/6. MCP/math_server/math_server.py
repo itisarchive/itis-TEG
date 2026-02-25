@@ -8,6 +8,7 @@ from mcp.server.fastmcp import FastMCP
 # Initialize FastMCP server - creates an MCP server named "math"
 mcp = FastMCP("math")
 
+
 # @mcp.tool() decorator exposes this function as an MCP tool
 @mcp.tool()
 def add(a: float, b: float) -> float:
@@ -19,6 +20,7 @@ def add(a: float, b: float) -> float:
     """
     return a + b
 
+
 @mcp.tool()
 def subtract(a: float, b: float) -> float:
     """Subtract b from a.
@@ -29,6 +31,7 @@ def subtract(a: float, b: float) -> float:
     """
     return a - b
 
+
 @mcp.tool()
 def multiply(a: float, b: float) -> float:
     """Multiply two numbers.
@@ -38,6 +41,7 @@ def multiply(a: float, b: float) -> float:
         b: Second number
     """
     return a * b
+
 
 @mcp.tool()
 def divide(a: float, b: float) -> float:
@@ -51,6 +55,7 @@ def divide(a: float, b: float) -> float:
         raise ValueError("Cannot divide by zero")
     return a / b
 
+
 @mcp.tool()
 def power(a: float, b: float) -> float:
     """Raise a to the power of b.
@@ -60,6 +65,7 @@ def power(a: float, b: float) -> float:
         b: Exponent
     """
     return a ** b
+
 
 @mcp.tool()
 def sqrt(a: float) -> float:
@@ -71,6 +77,7 @@ def sqrt(a: float) -> float:
     if a < 0:
         raise ValueError("Cannot calculate square root of negative number")
     return a ** 0.5
+
 
 @mcp.tool()
 def factorial(n: int) -> int:
@@ -87,6 +94,7 @@ def factorial(n: int) -> int:
     for i in range(2, n + 1):
         result *= i
     return result
+
 
 if __name__ == "__main__":
     mcp.run(transport='stdio')

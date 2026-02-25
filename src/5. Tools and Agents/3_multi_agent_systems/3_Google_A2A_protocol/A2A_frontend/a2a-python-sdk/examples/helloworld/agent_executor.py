@@ -1,5 +1,4 @@
 import asyncio
-
 from collections.abc import AsyncGenerator
 from typing import Any
 from uuid import uuid4
@@ -44,7 +43,7 @@ class HelloWorldAgentExecutor(AgentExecutor):
         self.agent = HelloWorldAgent()
 
     async def on_message_send(
-        self, request: SendMessageRequest, task: Task | None
+            self, request: SendMessageRequest, task: Task | None
     ) -> SendMessageResponse:
         result = await self.agent.invoke()
 
@@ -59,7 +58,7 @@ class HelloWorldAgentExecutor(AgentExecutor):
         )
 
     async def on_message_stream(  # type: ignore
-        self, request: SendMessageStreamingRequest, task: Task | None
+            self, request: SendMessageStreamingRequest, task: Task | None
     ) -> AsyncGenerator[SendMessageStreamingResponse, None]:
         async for chunk in self.agent.stream():
             message: Message = Message(
@@ -75,7 +74,7 @@ class HelloWorldAgentExecutor(AgentExecutor):
             )
 
     async def on_cancel(
-        self, request: CancelTaskRequest, task: Task
+            self, request: CancelTaskRequest, task: Task
     ) -> CancelTaskResponse:
         return CancelTaskResponse(
             root=JSONRPCErrorResponse(
@@ -84,7 +83,7 @@ class HelloWorldAgentExecutor(AgentExecutor):
         )
 
     async def on_resubscribe(  # type: ignore
-        self, request: TaskResubscriptionRequest, task: Task
+            self, request: TaskResubscriptionRequest, task: Task
     ) -> AsyncGenerator[SendMessageStreamingResponse, None]:
         yield SendMessageStreamingResponse(
             root=JSONRPCErrorResponse(

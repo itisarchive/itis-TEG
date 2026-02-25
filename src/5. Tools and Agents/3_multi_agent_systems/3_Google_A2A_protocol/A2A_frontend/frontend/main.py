@@ -6,12 +6,12 @@ run:
 import os
 
 import mesop as me
-
-from components.api_key_dialog import api_key_dialog
-from components.page_scaffold import page_scaffold
 from dotenv import load_dotenv
 from fastapi import APIRouter, FastAPI
 from fastapi.middleware.wsgi import WSGIMiddleware
+
+from components.api_key_dialog import api_key_dialog
+from components.page_scaffold import page_scaffold
 from pages.agent_list import agent_list_page
 from pages.conversation import conversation_page
 from pages.event_list import event_list_page
@@ -21,7 +21,6 @@ from pages.task_list import task_list_page
 from service.server.server import ConversationServer
 from state import host_agent_service
 from state.state import AppState
-
 
 load_dotenv()
 
@@ -38,7 +37,7 @@ def on_load(e: me.LoadEvent):  # pylint: disable=unused-argument
     # check if the API key is set in the environment
     # and if the user is using Vertex AI
     uses_vertex_ai = (
-        os.getenv('GOOGLE_GENAI_USE_VERTEXAI', '').upper() == 'TRUE'
+            os.getenv('GOOGLE_GENAI_USE_VERTEXAI', '').upper() == 'TRUE'
     )
     api_key = os.getenv('GOOGLE_API_KEY', '')
 

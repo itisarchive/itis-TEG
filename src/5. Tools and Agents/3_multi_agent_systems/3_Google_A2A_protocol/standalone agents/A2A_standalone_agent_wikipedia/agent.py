@@ -3,18 +3,14 @@ from typing import Any, Literal
 
 import httpx
 import tomli
-
-from langchain_core.messages import AIMessage, ToolMessage
-from langchain_core.tools import tool
-from pydantic import BaseModel
-
-from langgraph.checkpoint.memory import MemorySaver
-from langgraph.prebuilt import create_react_agent
-
-from langchain_openai import ChatOpenAI
-
 from langchain_community.tools import WikipediaQueryRun
 from langchain_community.utilities import WikipediaAPIWrapper
+from langchain_core.messages import AIMessage, ToolMessage
+from langchain_core.tools import tool
+from langchain_openai import ChatOpenAI
+from langgraph.checkpoint.memory import MemorySaver
+from langgraph.prebuilt import create_react_agent
+from pydantic import BaseModel
 
 # Load configuration
 with open("agent_config.toml", "rb") as f:
@@ -23,6 +19,7 @@ with open("agent_config.toml", "rb") as f:
 wikipedia = WikipediaQueryRun(api_wrapper=WikipediaAPIWrapper())
 
 memory = MemorySaver()
+
 
 class ResponseFormat(BaseModel):
     """Respond to the user in this format."""
@@ -34,16 +31,18 @@ class ResponseFormat(BaseModel):
 # Get the agent class name from config
 agent_name = config["agent"]["name"]
 
+
 # Define the agent class with the name from config
 class Agent:
     # Read system instruction from config
     SYSTEM_INSTRUCTION = config["agent"]["system_instruction"]
     # Read supported content types from config
     SUPPORTED_CONTENT_TYPES = config["agent"]["supported_content_types"]
+
     def __init__(self):
         # Read model configuration from config
         self.model = ChatOpenAI(
-            model=config["model"]["name"], 
+            model=config["model"]["name"],
             temperature=config["model"]["temperature"]
         )
         self.tools = [wikipedia]
@@ -68,9 +67,9 @@ class Agent:
         for item in self.graph.stream(inputs, graph_config, stream_mode='values'):
             message = item['messages'][-1]
             if (
-                isinstance(message, AIMessage)
-                and message.tool_calls
-                and len(message.tool_calls) > 0
+                    isinstance(message, AIMessage)
+                    and message.tool_calls
+                    and len(message.tool_calls) > 0
             ):
                 yield {
                     'is_task_complete': False,
@@ -90,11 +89,11 @@ class Agent:
         current_state = self.graph.get_state(graph_config)
         structured_response = current_state.values.get('structured_response')
         if structured_response and isinstance(
-            structured_response, ResponseFormat
+                structured_response, ResponseFormat
         ):
             if (
-                structured_response.status == 'input_required'
-                or structured_response.status == 'error'
+                    structured_response.status == 'input_required'
+                    or structured_response.status == 'error'
             ):
                 return {
                     'is_task_complete': False,

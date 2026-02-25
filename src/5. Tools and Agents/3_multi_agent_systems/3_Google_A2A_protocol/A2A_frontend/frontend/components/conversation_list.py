@@ -18,11 +18,11 @@ def conversation_list(conversations: list[StateConversation]):
         pd.DataFrame(df_data), columns=['ID', 'Name', 'Status', 'Messages']
     )
     with me.box(
-        style=me.Style(
-            display='flex',
-            justify_content='space-between',
-            flex_direction='column',
-        )
+            style=me.Style(
+                display='flex',
+                justify_content='space-between',
+                flex_direction='column',
+            )
     ):
         me.table(
             df,
@@ -36,16 +36,16 @@ def conversation_list(conversations: list[StateConversation]):
             },
         )
         with me.content_button(
-            type='raised',
-            on_click=add_conversation,
-            key='new_conversation',
-            style=me.Style(
-                display='flex',
-                flex_direction='row',
-                gap=5,
-                align_items='center',
-                margin=me.Margin(top=10),
-            ),
+                type='raised',
+                on_click=add_conversation,
+                key='new_conversation',
+                style=me.Style(
+                    display='flex',
+                    flex_direction='row',
+                    gap=5,
+                    align_items='center',
+                    margin=me.Margin(top=10),
+                ),
         ):
             me.icon(icon='add')
 

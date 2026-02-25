@@ -1,8 +1,8 @@
 [project]
-name = "RAG_primitves"
-version = "0.1.0"
+name = "3-rag-primitives"
+version = "1.0.0"
 description = "A set of RAG primitives, for independend execution"
-authors = ["Andrzej Wodecki <andrzej.wodecki@example.com>"]
+readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "beautifulsoup4>=4.14.3",

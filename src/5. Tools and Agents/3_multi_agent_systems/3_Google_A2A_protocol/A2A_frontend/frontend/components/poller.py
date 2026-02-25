@@ -9,10 +9,10 @@ def polling_buttons():
     """Polling buttons component"""
     state = me.state(AppState)
     with me.box(
-        style=me.Style(
-            display='flex',
-            justify_content='end',
-        )
+            style=me.Style(
+                display='flex',
+                justify_content='end',
+            )
     ):
         me.button_toggle(
             value=[str(state.polling_interval)],
@@ -31,8 +31,8 @@ def polling_buttons():
             ),
         )
         with me.content_button(
-            type='raised',
-            on_click=force_refresh,
+                type='raised',
+                on_click=force_refresh,
         ):
             me.icon('refresh')
     me.slot()

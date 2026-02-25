@@ -1,11 +1,8 @@
 import dataclasses
-
 from typing import Any, Literal
 
 import mesop as me
-
 from pydantic.dataclasses import dataclass
-
 
 ContentPart = str | dict[str, Any]
 

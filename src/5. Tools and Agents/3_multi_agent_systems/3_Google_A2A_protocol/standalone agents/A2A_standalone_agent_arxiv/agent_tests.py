@@ -1,5 +1,7 @@
-from agent import Agent
 from dotenv import load_dotenv
+
+from agent import Agent
+
 load_dotenv()
 
 agent = Agent()

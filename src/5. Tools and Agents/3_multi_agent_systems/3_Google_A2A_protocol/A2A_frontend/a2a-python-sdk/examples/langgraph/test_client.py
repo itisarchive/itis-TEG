@@ -1,6 +1,8 @@
-from a2a.client import A2AClient
 from typing import Any
 from uuid import uuid4
+
+import httpx
+from a2a.client import A2AClient
 from a2a.types import (
     SendMessageResponse,
     GetTaskResponse,
@@ -8,13 +10,12 @@ from a2a.types import (
     Task,
     TaskState,
 )
-import httpx
 
 AGENT_URL = 'http://localhost:10000'
 
 
 def create_send_message_payload(
-    text: str, session_id: str | None = None
+        text: str, session_id: str | None = None
 ) -> dict[str, Any]:
     """Helper function to create the payload for sending a task."""
     payload: dict[str, Any] = {
@@ -91,7 +92,7 @@ async def run_multi_turn_test(client: A2AClient) -> None:
 
     session_id: str | None = None
     if isinstance(
-        first_turn_response.root, SendMessageSuccessResponse
+            first_turn_response.root, SendMessageSuccessResponse
     ) and isinstance(first_turn_response.root.result, Task):
         task: Task = first_turn_response.root.result
         context_id: str = task.contextId  # Capture session ID

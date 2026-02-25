@@ -4,16 +4,12 @@ from typing import Any, Literal
 
 import httpx
 import tomli
-
 from langchain_core.messages import AIMessage, ToolMessage
 from langchain_core.tools import tool
-
-from pydantic import BaseModel
-
+from langchain_openai import ChatOpenAI
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.prebuilt import create_react_agent
-
-from langchain_openai import ChatOpenAI
+from pydantic import BaseModel
 
 # Load configuration
 with open("agent_config.toml", "rb") as f:
@@ -21,9 +17,11 @@ with open("agent_config.toml", "rb") as f:
 
 # Load environment variables
 from dotenv import load_dotenv
+
 load_dotenv()
 
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
+
 
 @tool
 def multiply(a: int, b: int) -> int:
@@ -36,6 +34,7 @@ def multiply(a: int, b: int) -> int:
     print("Multiplying", a, b)
     return a * b
 
+
 @tool
 def add(a: int, b: int) -> int:
     """Add a and b.
@@ -45,6 +44,7 @@ def add(a: int, b: int) -> int:
     """
     print("Adding", a, b)
     return a + b
+
 
 @tool
 def subtract(a: int, b: int) -> int:
@@ -56,6 +56,7 @@ def subtract(a: int, b: int) -> int:
     print("Subtracting", a, b)
     return a - b
 
+
 @tool
 def divide(a: int, b: int) -> int:
     """Divide a and b.
@@ -65,6 +66,7 @@ def divide(a: int, b: int) -> int:
     """
     print("Dividing", a, b)
     return a / b
+
 
 @tool
 def power(a: int, b: int) -> int:
@@ -79,6 +81,7 @@ def power(a: int, b: int) -> int:
 
 memory = MemorySaver()
 
+
 class ResponseFormat(BaseModel):
     """Respond to the user in this format."""
 
@@ -89,16 +92,18 @@ class ResponseFormat(BaseModel):
 # Get the agent class name from config
 agent_name = config["agent"]["name"]
 
+
 # Define the agent class with the name from config
 class Agent:
     # Read system instruction from config
     SYSTEM_INSTRUCTION = config["agent"]["system_instruction"]
     # Read supported content types from config
     SUPPORTED_CONTENT_TYPES = config["agent"]["supported_content_types"]
+
     def __init__(self):
         # Read model configuration from config
         self.model = ChatOpenAI(
-            model=config["model"]["name"], 
+            model=config["model"]["name"],
             temperature=config["model"]["temperature"]
         )
         self.tools = [multiply, add, subtract, divide, power]
@@ -123,9 +128,9 @@ class Agent:
         for item in self.graph.stream(inputs, graph_config, stream_mode='values'):
             message = item['messages'][-1]
             if (
-                isinstance(message, AIMessage)
-                and message.tool_calls
-                and len(message.tool_calls) > 0
+                    isinstance(message, AIMessage)
+                    and message.tool_calls
+                    and len(message.tool_calls) > 0
             ):
                 yield {
                     'is_task_complete': False,
@@ -145,11 +150,11 @@ class Agent:
         current_state = self.graph.get_state(graph_config)
         structured_response = current_state.values.get('structured_response')
         if structured_response and isinstance(
-            structured_response, ResponseFormat
+                structured_response, ResponseFormat
         ):
             if (
-                structured_response.status == 'input_required'
-                or structured_response.status == 'error'
+                    structured_response.status == 'input_required'
+                    or structured_response.status == 'error'
             ):
                 return {
                     'is_task_complete': False,

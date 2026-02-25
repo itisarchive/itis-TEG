@@ -1,7 +1,6 @@
 import uuid
 
 import mesop as me
-
 from common.types import Message, TextPart
 from state.host_agent_service import (
     ListConversations,
@@ -101,11 +100,11 @@ def conversation():
         page_state.conversation_id = me.query_params['conversation_id']
         app_state.current_conversation_id = page_state.conversation_id
     with me.box(
-        style=me.Style(
-            display='flex',
-            justify_content='space-between',
-            flex_direction='column',
-        )
+            style=me.Style(
+                display='flex',
+                justify_content='space-between',
+                flex_direction='column',
+            )
     ):
         for message in app_state.messages:
             if is_form(message):
@@ -123,14 +122,14 @@ def conversation():
                 chat_bubble(message, message.message_id)
 
         with me.box(
-            style=me.Style(
-                display='flex',
-                flex_direction='row',
-                gap=5,
-                align_items='center',
-                min_width=500,
-                width='100%',
-            )
+                style=me.Style(
+                    display='flex',
+                    flex_direction='row',
+                    gap=5,
+                    align_items='center',
+                    min_width=500,
+                    width='100%',
+                )
         ):
             me.input(
                 label='How can I help you?',
@@ -139,7 +138,7 @@ def conversation():
                 style=me.Style(min_width='80vw'),
             )
             with me.content_button(
-                type='flat',
-                on_click=send_message_button,
+                    type='flat',
+                    on_click=send_message_button,
             ):
                 me.icon(icon='send')

@@ -39,27 +39,27 @@ def on_click_change_name(e: me.ClickEvent):  # pylint: disable=unused-argument
 def home_page_content(app_state: AppState):
     """Home Page"""
     with me.box(
-        style=me.Style(
-            display='flex',
-            flex_direction='column',
-            height='100%',
-        ),
+            style=me.Style(
+                display='flex',
+                flex_direction='column',
+                height='100%',
+            ),
     ):
         with me.box(
-            style=me.Style(
-                background=me.theme_var('background'),
-                height='100%',
-                margin=me.Margin(bottom=20),
-            )
-        ):
-            with me.box(
                 style=me.Style(
                     background=me.theme_var('background'),
-                    padding=me.Padding(top=24, left=24, right=24, bottom=24),
-                    display='flex',
-                    flex_direction='column',
-                    width='100%',
+                    height='100%',
+                    margin=me.Margin(bottom=20),
                 )
+        ):
+            with me.box(
+                    style=me.Style(
+                        background=me.theme_var('background'),
+                        padding=me.Padding(top=24, left=24, right=24, bottom=24),
+                        display='flex',
+                        flex_direction='column',
+                        width='100%',
+                    )
             ):
                 with header('Conversations', 'message'):
                     pass

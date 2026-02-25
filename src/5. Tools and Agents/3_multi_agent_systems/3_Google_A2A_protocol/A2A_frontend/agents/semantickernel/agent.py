@@ -1,11 +1,9 @@
 import logging
 import os
-
 from collections.abc import AsyncIterable
 from typing import TYPE_CHECKING, Annotated, Any, Literal
 
 import httpx
-
 from dotenv import load_dotenv
 from pydantic import BaseModel
 from semantic_kernel.agents import ChatCompletionAgent, ChatHistoryAgentThread
@@ -22,13 +20,13 @@ from semantic_kernel.contents import (
 from semantic_kernel.functions import kernel_function
 from semantic_kernel.functions.kernel_arguments import KernelArguments
 
-
 if TYPE_CHECKING:
     from semantic_kernel.contents import ChatMessageContent
 
 logger = logging.getLogger(__name__)
 
 load_dotenv()
+
 
 # region Plugin
 
@@ -43,14 +41,14 @@ class CurrencyPlugin:
         description='Retrieves exchange rate between currency_from and currency_to using Frankfurter API'
     )
     def get_exchange_rate(
-        self,
-        currency_from: Annotated[
-            str, 'Currency code to convert from, e.g. USD'
-        ],
-        currency_to: Annotated[
-            str, 'Currency code to convert to, e.g. EUR or INR'
-        ],
-        date: Annotated[str, "Date or 'latest'"] = 'latest',
+            self,
+            currency_from: Annotated[
+                str, 'Currency code to convert from, e.g. USD'
+            ],
+            currency_to: Annotated[
+                str, 'Currency code to convert to, e.g. EUR or INR'
+            ],
+            date: Annotated[str, "Date or 'latest'"] = 'latest',
     ) -> str:
         try:
             response = httpx.get(
@@ -177,7 +175,7 @@ class SemanticKernelTravelAgent:
         return self._get_agent_response(response.content)
 
     async def stream(
-        self, user_input: str, session_id: str
+            self, user_input: str, session_id: str
     ) -> AsyncIterable[dict[str, Any]]:
         """For streaming tasks (like tasks/sendSubscribe), we yield partial progress using SK agent's invoke_stream.
 
@@ -196,12 +194,12 @@ class SemanticKernelTravelAgent:
         tool_call_in_progress = False
         message_in_progress = False
         async for response_chunk in self.agent.invoke_stream(
-            messages=user_input,
-            thread=self.thread,
+                messages=user_input,
+                thread=self.thread,
         ):
             if any(
-                isinstance(item, (FunctionCallContent, FunctionResultContent))
-                for item in response_chunk.items
+                    isinstance(item, (FunctionCallContent, FunctionResultContent))
+                    for item in response_chunk.items
             ):
                 if not tool_call_in_progress:
                     yield {
@@ -211,8 +209,8 @@ class SemanticKernelTravelAgent:
                     }
                     tool_call_in_progress = True
             elif any(
-                isinstance(item, StreamingTextContent)
-                for item in response_chunk.items
+                    isinstance(item, StreamingTextContent)
+                    for item in response_chunk.items
             ):
                 if not message_in_progress:
                     yield {
@@ -228,7 +226,7 @@ class SemanticKernelTravelAgent:
         yield self._get_agent_response(full_message)
 
     def _get_agent_response(
-        self, message: 'ChatMessageContent'
+            self, message: 'ChatMessageContent'
     ) -> dict[str, Any]:
         """Extracts the structured response from the agent's message content.
 
@@ -281,6 +279,5 @@ class SemanticKernelTravelAgent:
         if self.thread is None or self.thread._thread_id != session_id:
             await self.thread.delete() if self.thread else None
             self.thread = ChatHistoryAgentThread(thread_id=session_id)
-
 
 # endregion

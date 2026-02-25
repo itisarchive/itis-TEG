@@ -1,5 +1,4 @@
 import asyncio
-
 from abc import ABC, abstractmethod
 
 from a2a.types import Task

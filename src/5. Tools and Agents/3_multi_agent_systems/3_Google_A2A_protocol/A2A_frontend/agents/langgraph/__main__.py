@@ -2,7 +2,6 @@ import logging
 import os
 
 import click
-
 from agents.langgraph.agent import CurrencyAgent
 from agents.langgraph.task_manager import AgentTaskManager
 from common.server import A2AServer
@@ -14,7 +13,6 @@ from common.types import (
 )
 from common.utils.push_notification_auth import PushNotificationSenderAuth
 from dotenv import load_dotenv
-
 
 load_dotenv()
 

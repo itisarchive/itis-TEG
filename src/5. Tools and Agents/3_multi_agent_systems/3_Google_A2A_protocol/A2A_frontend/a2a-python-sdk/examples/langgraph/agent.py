@@ -1,10 +1,8 @@
 import logging
-
 from collections.abc import AsyncIterable
 from typing import Any, Literal
 
 import httpx
-
 from langchain_core.messages import AIMessage, ToolMessage
 from langchain_core.runnables.config import (
     RunnableConfig,
@@ -15,7 +13,6 @@ from langgraph.checkpoint.memory import MemorySaver
 from langgraph.prebuilt import create_react_agent  # type: ignore
 from pydantic import BaseModel
 
-
 logger = logging.getLogger(__name__)
 
 memory = MemorySaver()
@@ -23,9 +20,9 @@ memory = MemorySaver()
 
 @tool
 def get_exchange_rate(
-    currency_from: str = 'USD',
-    currency_to: str = 'EUR',
-    currency_date: str = 'latest',
+        currency_from: str = 'USD',
+        currency_to: str = 'EUR',
+        currency_date: str = 'latest',
 ):
     """Use this to get current exchange rate.
 
@@ -100,7 +97,7 @@ class CurrencyAgent:
         return self.get_agent_response(config)
 
     async def stream(
-        self, query: str, sessionId: str
+            self, query: str, sessionId: str
     ) -> AsyncIterable[dict[str, Any]]:
         inputs: dict[str, Any] = {'messages': [('user', query)]}
         config: RunnableConfig = {'configurable': {'thread_id': sessionId}}
@@ -108,9 +105,9 @@ class CurrencyAgent:
         for item in self.graph.stream(inputs, config, stream_mode='values'):
             message = item['messages'][-1]
             if (
-                isinstance(message, AIMessage)
-                and message.tool_calls
-                and len(message.tool_calls) > 0
+                    isinstance(message, AIMessage)
+                    and message.tool_calls
+                    and len(message.tool_calls) > 0
             ):
                 yield {
                     'is_task_complete': False,
@@ -131,7 +128,7 @@ class CurrencyAgent:
 
         structured_response = current_state.values.get('structured_response')
         if structured_response and isinstance(
-            structured_response, ResponseFormat
+                structured_response, ResponseFormat
         ):
             if structured_response.status in {'input_required', 'error'}:
                 return {

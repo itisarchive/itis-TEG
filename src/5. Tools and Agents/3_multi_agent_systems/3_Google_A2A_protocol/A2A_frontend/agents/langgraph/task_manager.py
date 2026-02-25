@@ -1,7 +1,6 @@
 import asyncio
 import logging
 import traceback
-
 from collections.abc import AsyncIterable
 
 from agents.langgraph.agent import CurrencyAgent
@@ -29,15 +28,14 @@ from common.types import (
 )
 from common.utils.push_notification_auth import PushNotificationSenderAuth
 
-
 logger = logging.getLogger(__name__)
 
 
 class AgentTaskManager(InMemoryTaskManager):
     def __init__(
-        self,
-        agent: CurrencyAgent,
-        notification_sender_auth: PushNotificationSenderAuth,
+            self,
+            agent: CurrencyAgent,
+            notification_sender_auth: PushNotificationSenderAuth,
     ):
         super().__init__()
         self.agent = agent
@@ -49,7 +47,7 @@ class AgentTaskManager(InMemoryTaskManager):
 
         try:
             async for item in self.agent.stream(
-                query, task_send_params.sessionId
+                    query, task_send_params.sessionId
             ):
                 is_task_complete = item['is_task_complete']
                 require_user_input = item['require_user_input']
@@ -103,12 +101,12 @@ class AgentTaskManager(InMemoryTaskManager):
             )
 
     def _validate_request(
-        self, request: SendTaskRequest | SendTaskStreamingRequest
+            self, request: SendTaskRequest | SendTaskStreamingRequest
     ) -> JSONRPCResponse | None:
         task_send_params: TaskSendParams = request.params
         if not utils.are_modalities_compatible(
-            task_send_params.acceptedOutputModes,
-            CurrencyAgent.SUPPORTED_CONTENT_TYPES,
+                task_send_params.acceptedOutputModes,
+                CurrencyAgent.SUPPORTED_CONTENT_TYPES,
         ):
             logger.warning(
                 'Unsupported output mode. Received %s, Support %s',
@@ -118,8 +116,8 @@ class AgentTaskManager(InMemoryTaskManager):
             return utils.new_incompatible_types_error(request.id)
 
         if (
-            task_send_params.pushNotification
-            and not task_send_params.pushNotification.url
+                task_send_params.pushNotification
+                and not task_send_params.pushNotification.url
         ):
             logger.warning('Push notification URL is missing')
             return JSONRPCResponse(
@@ -139,7 +137,7 @@ class AgentTaskManager(InMemoryTaskManager):
 
         if request.params.pushNotification:
             if not await self.set_push_notification_info(
-                request.params.id, request.params.pushNotification
+                    request.params.id, request.params.pushNotification
             ):
                 return SendTaskResponse(
                     id=request.id,
@@ -166,7 +164,7 @@ class AgentTaskManager(InMemoryTaskManager):
         return await self._process_agent_response(request, agent_response)
 
     async def on_send_task_subscribe(
-        self, request: SendTaskStreamingRequest
+            self, request: SendTaskStreamingRequest
     ) -> AsyncIterable[SendTaskStreamingResponse] | JSONRPCResponse:
         try:
             error = self._validate_request(request)
@@ -177,7 +175,7 @@ class AgentTaskManager(InMemoryTaskManager):
 
             if request.params.pushNotification:
                 if not await self.set_push_notification_info(
-                    request.params.id, request.params.pushNotification
+                        request.params.id, request.params.pushNotification
                 ):
                     return JSONRPCResponse(
                         id=request.id,
@@ -207,7 +205,7 @@ class AgentTaskManager(InMemoryTaskManager):
             )
 
     async def _process_agent_response(
-        self, request: SendTaskRequest, agent_response: dict
+            self, request: SendTaskRequest, agent_response: dict
     ) -> SendTaskResponse:
         """Processes the agent's response and updates the task store."""
         task_send_params: TaskSendParams = request.params
@@ -250,7 +248,7 @@ class AgentTaskManager(InMemoryTaskManager):
         )
 
     async def on_resubscribe_to_task(
-        self, request
+            self, request
     ) -> AsyncIterable[SendTaskStreamingResponse] | JSONRPCResponse:
         task_id_params: TaskIdParams = request.params
         try:
@@ -270,7 +268,7 @@ class AgentTaskManager(InMemoryTaskManager):
             )
 
     async def set_push_notification_info(
-        self, task_id: str, push_notification_config: PushNotificationConfig
+            self, task_id: str, push_notification_config: PushNotificationConfig
     ):
         # Verify the ownership of notification URL by issuing a challenge request.
         is_verified = (

@@ -1,7 +1,8 @@
-from a2a.client import A2AClient
 from typing import Any
-import httpx
 from uuid import uuid4
+
+import httpx
+from a2a.client import A2AClient
 from a2a.types import SendMessageSuccessResponse, Task
 
 
@@ -24,7 +25,7 @@ async def main() -> None:
         print(response.model_dump(mode='json', exclude_none=True))
 
         if isinstance(response.root, SendMessageSuccessResponse) and isinstance(
-            response.root.result, Task
+                response.root.result, Task
         ):
             task_id: str = response.root.result.id
             get_task_payload = {'id': task_id}

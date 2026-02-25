@@ -132,7 +132,7 @@ class ADKHostManagerTest(unittest.TestCase):
         part = types.Part()
         content = types.Content(parts=[part], role='user')
         with self.assertRaisesRegex(
-            ValueError, 'Unexpected content, unknown type'
+                ValueError, 'Unexpected content, unknown type'
         ):
             self.manager.adk_content_to_message(content, self.conversation_id)
 

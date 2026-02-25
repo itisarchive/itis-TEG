@@ -1,13 +1,6 @@
 from collections.abc import AsyncGenerator
 from typing import Any
 
-from agent import CurrencyAgent
-from helpers import (
-    create_task_obj,
-    process_streaming_agent_response,
-    update_task_with_agent_response,
-)
-
 from a2a.server import AgentExecutor, TaskStore
 from a2a.types import (
     CancelTaskRequest,
@@ -27,6 +20,13 @@ from a2a.types import (
     UnsupportedOperationError,
 )
 
+from agent import CurrencyAgent
+from helpers import (
+    create_task_obj,
+    process_streaming_agent_response,
+    update_task_with_agent_response,
+)
+
 
 class CurrencyAgentExecutor(AgentExecutor):
     """Currency AgentExecutor Example."""
@@ -36,7 +36,7 @@ class CurrencyAgentExecutor(AgentExecutor):
         self.task_store = task_store
 
     async def on_message_send(
-        self, request: SendMessageRequest, task: Task | None
+            self, request: SendMessageRequest, task: Task | None
     ) -> SendMessageResponse:
         """Handler for 'message/send' requests."""
         params: MessageSendParams = request.params
@@ -57,7 +57,7 @@ class CurrencyAgentExecutor(AgentExecutor):
         )
 
     async def on_message_stream(  # type: ignore
-        self, request: SendMessageStreamingRequest, task: Task | None
+            self, request: SendMessageStreamingRequest, task: Task | None
     ) -> AsyncGenerator[SendMessageStreamingResponse, None]:
         """Handler for 'message/sendStream' requests."""
         params: MessageSendParams = request.params
@@ -87,7 +87,7 @@ class CurrencyAgentExecutor(AgentExecutor):
             )
 
     async def on_cancel(
-        self, request: CancelTaskRequest, task: Task
+            self, request: CancelTaskRequest, task: Task
     ) -> CancelTaskResponse:
         """Handler for 'tasks/cancel' requests."""
         return CancelTaskResponse(
@@ -97,7 +97,7 @@ class CurrencyAgentExecutor(AgentExecutor):
         )
 
     async def on_resubscribe(  # type: ignore
-        self, request: TaskResubscriptionRequest, task: Task
+            self, request: TaskResubscriptionRequest, task: Task
     ) -> AsyncGenerator[SendMessageStreamingResponse, None]:
         """Handler for 'tasks/resubscribe' requests."""
         yield SendMessageStreamingResponse(

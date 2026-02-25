@@ -615,19 +615,19 @@ class A2AError(
         | PushNotificationNotSupportedError
         | UnsupportedOperationError
         | ContentTypeNotSupportedError
-    ]
+        ]
 ):
     root: (
-        JSONParseError
-        | InvalidRequestError
-        | MethodNotFoundError
-        | InvalidParamsError
-        | InternalError
-        | TaskNotFoundError
-        | TaskNotCancelableError
-        | PushNotificationNotSupportedError
-        | UnsupportedOperationError
-        | ContentTypeNotSupportedError
+            JSONParseError
+            | InvalidRequestError
+            | MethodNotFoundError
+            | InvalidParamsError
+            | InternalError
+            | TaskNotFoundError
+            | TaskNotCancelableError
+            | PushNotificationNotSupportedError
+            | UnsupportedOperationError
+            | ContentTypeNotSupportedError
     )
 
 
@@ -808,17 +808,17 @@ class JSONRPCErrorResponse(BaseModel):
     """
 
     error: (
-        JSONRPCError
-        | JSONParseError
-        | InvalidRequestError
-        | MethodNotFoundError
-        | InvalidParamsError
-        | InternalError
-        | TaskNotFoundError
-        | TaskNotCancelableError
-        | PushNotificationNotSupportedError
-        | UnsupportedOperationError
-        | ContentTypeNotSupportedError
+            JSONRPCError
+            | JSONParseError
+            | InvalidRequestError
+            | MethodNotFoundError
+            | InvalidParamsError
+            | InternalError
+            | TaskNotFoundError
+            | TaskNotCancelableError
+            | PushNotificationNotSupportedError
+            | UnsupportedOperationError
+            | ContentTypeNotSupportedError
     )
     id: str | int | None = None
     """
@@ -1137,16 +1137,16 @@ class A2ARequest(
         | SetTaskPushNotificationConfigRequest
         | GetTaskPushNotificationConfigRequest
         | TaskResubscriptionRequest
-    ]
+        ]
 ):
     root: (
-        SendMessageRequest
-        | SendMessageStreamingRequest
-        | GetTaskRequest
-        | CancelTaskRequest
-        | SetTaskPushNotificationConfigRequest
-        | GetTaskPushNotificationConfigRequest
-        | TaskResubscriptionRequest
+            SendMessageRequest
+            | SendMessageStreamingRequest
+            | GetTaskRequest
+            | CancelTaskRequest
+            | SetTaskPushNotificationConfigRequest
+            | GetTaskPushNotificationConfigRequest
+            | TaskResubscriptionRequest
     )
     """
     A2A supported request types
@@ -1289,16 +1289,16 @@ class JSONRPCResponse(
         | CancelTaskSuccessResponse
         | SetTaskPushNotificationConfigSuccessResponse
         | GetTaskPushNotificationConfigSuccessResponse
-    ]
+        ]
 ):
     root: (
-        JSONRPCErrorResponse
-        | SendMessageSuccessResponse
-        | SendMessageStreamingSuccessResponse
-        | GetTaskSuccessResponse
-        | CancelTaskSuccessResponse
-        | SetTaskPushNotificationConfigSuccessResponse
-        | GetTaskPushNotificationConfigSuccessResponse
+            JSONRPCErrorResponse
+            | SendMessageSuccessResponse
+            | SendMessageStreamingSuccessResponse
+            | GetTaskSuccessResponse
+            | CancelTaskSuccessResponse
+            | SetTaskPushNotificationConfigSuccessResponse
+            | GetTaskPushNotificationConfigSuccessResponse
     )
     """
     Represents a JSON-RPC 2.0 Response object.

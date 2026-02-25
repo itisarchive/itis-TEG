@@ -2,7 +2,6 @@ import json
 import os
 import sys
 import traceback
-
 from typing import Any
 
 from common.types import Message, Part, Task
@@ -29,7 +28,6 @@ from .state import (
     StateMessage,
     StateTask,
 )
-
 
 server_url = 'http://localhost:12000'
 
@@ -185,7 +183,7 @@ def convert_message_to_state(message: Message) -> StateMessage:
 
 
 def convert_conversation_to_state(
-    conversation: Conversation,
+        conversation: Conversation,
 ) -> StateConversation:
     return StateConversation(
         conversation_id=conversation.conversation_id,
@@ -226,7 +224,7 @@ def convert_event_to_state(event: Event) -> StateEvent:
 
 
 def extract_content(
-    message_parts: list[Part],
+        message_parts: list[Part],
 ) -> list[tuple[str | dict[str, Any], str]]:
     parts = []
     if not message_parts:
@@ -269,9 +267,9 @@ def extract_conversation_id(task: Task) -> str:
         return task.sessionId
     # Tries to find the first conversation id for the message in the task.
     if (
-        task.status.message
-        and task.status.message.metadata
-        and 'conversation_id' in task.status.message.metadata
+            task.status.message
+            and task.status.message.metadata
+            and 'conversation_id' in task.status.message.metadata
     ):
         return task.status.message.metadata['conversation_id']
     # Now check if maybe the task has conversation id in metadata.

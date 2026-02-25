@@ -1,9 +1,9 @@
 [project]
-name = "4-chains"
-version = "0.1.0"
-description = "Add your description here"
+name = "4-graphs"
+version = "1.0.0"
+description = "Building and utilizing graph-based knowledge representations for AI agents"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.13"
 dependencies = [
     "langchain-community>=0.3.0",
     "langchain-core>=0.3.0",

@@ -3,17 +3,14 @@ import json
 import logging
 import time
 import uuid
-
 from typing import Any
 
 import httpx
 import jwt
-
 from jwcrypto import jwk
 from jwt import PyJWK, PyJWKClient
 from starlette.requests import Request
 from starlette.responses import JSONResponse
-
 
 logger = logging.getLogger(__name__)
 AUTH_HEADER_PREFIX = 'Bearer '
@@ -121,7 +118,7 @@ class PushNotificationReceiverAuth(PushNotificationAuth):
             print('Invalid authorization header')
             return False
 
-        token = auth_header[len(AUTH_HEADER_PREFIX) :]
+        token = auth_header[len(AUTH_HEADER_PREFIX):]
         signing_key = self.jwks_client.get_signing_key_from_jwt(token)
 
         decode_token = jwt.decode(

@@ -1,6 +1,5 @@
 import mesop as me
 import mesop.labs as mel
-
 from state.host_agent_service import UpdateAppState
 from state.state import AppState
 from styles.styles import (
@@ -39,24 +38,24 @@ def page_scaffold():
     sidenav('')
 
     with me.box(
-        style=me.Style(
-            display='flex',
-            flex_direction='column',
-            height='100%',
-            margin=me.Margin(
-                left=SIDENAV_MAX_WIDTH
-                if app_state.sidenav_open
-                else SIDENAV_MIN_WIDTH,
+            style=me.Style(
+                display='flex',
+                flex_direction='column',
+                height='100%',
+                margin=me.Margin(
+                    left=SIDENAV_MAX_WIDTH
+                    if app_state.sidenav_open
+                    else SIDENAV_MIN_WIDTH,
+                ),
             ),
-        ),
     ):
         with me.box(
-            style=me.Style(
-                background=me.theme_var('background'),
-                height='100%',
-                overflow_y='scroll',
-                margin=me.Margin(bottom=20),
-            )
+                style=me.Style(
+                    background=me.theme_var('background'),
+                    height='100%',
+                    overflow_y='scroll',
+                    margin=me.Margin(bottom=20),
+                )
         ):
             me.slot()
 

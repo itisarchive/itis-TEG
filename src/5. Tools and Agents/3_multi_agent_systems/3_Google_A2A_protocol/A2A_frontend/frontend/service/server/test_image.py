@@ -4,7 +4,6 @@ from common.types import (
     Message,
 )
 
-
 test_image = Message(
     role='agent',
     parts=[

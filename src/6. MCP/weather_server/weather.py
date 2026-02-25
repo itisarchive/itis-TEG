@@ -5,9 +5,10 @@ Requires OPENWEATHERMAP_API_KEY environment variable.
 
 import os
 from typing import Any
+
 import httpx
-from mcp.server.fastmcp import FastMCP
 from dotenv import load_dotenv
+from mcp.server.fastmcp import FastMCP
 
 # Load environment variables
 load_dotenv(override=True)
@@ -21,6 +22,7 @@ API_KEY = os.getenv("OPENWEATHERMAP_API_KEY")
 
 if not API_KEY:
     raise ValueError("OPENWEATHERMAP_API_KEY environment variable is required")
+
 
 async def make_weather_request(url: str, params: dict[str, Any]) -> dict[str, Any] | None:
     """Make a request to the OpenWeatherMap API with proper error handling."""
@@ -38,6 +40,7 @@ async def make_weather_request(url: str, params: dict[str, Any]) -> dict[str, An
         except Exception as e:
             print(f"Request error: {e}")
             return None
+
 
 @mcp.tool()
 async def get_forecast(latitude: float, longitude: float) -> str:
@@ -89,6 +92,7 @@ Wind: {wind['speed']} m/s
 
     return "\n---\n".join(forecasts)
 
+
 @mcp.tool()
 async def get_current_conditions(latitude: float, longitude: float) -> str:
     """Get current weather conditions for a location.
@@ -129,6 +133,7 @@ Sunrise: {sys_info.get('sunrise', 'N/A')}
 Sunset: {sys_info.get('sunset', 'N/A')}
 """
 
+
 @mcp.tool()
 async def get_weather_by_city(city: str, country_code: str = "") -> str:
     """Get current weather for a city by name.
@@ -162,6 +167,7 @@ Pressure: {main['pressure']} hPa
 Wind Speed: {wind['speed']} m/s
 Coordinates: lat={data['coord']['lat']}, lon={data['coord']['lon']}
 """
+
 
 if __name__ == "__main__":
     # Initialize and run the server

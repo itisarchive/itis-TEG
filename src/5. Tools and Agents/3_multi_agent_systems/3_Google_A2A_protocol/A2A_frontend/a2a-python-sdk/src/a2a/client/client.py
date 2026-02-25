@@ -1,13 +1,9 @@
 import json
-
 from collections.abc import AsyncGenerator
 from typing import Any
 from uuid import uuid4
 
 import httpx
-
-from httpx_sse import SSEError, aconnect_sse
-
 from a2a.client.errors import A2AClientHTTPError, A2AClientJSONError
 from a2a.types import (
     A2ARequest,
@@ -29,16 +25,17 @@ from a2a.types import (
     TaskPushNotificationConfig,
     TaskQueryParams,
 )
+from httpx_sse import SSEError, aconnect_sse
 
 
 class A2ACardResolver:
     """Agent Card resolver."""
 
     def __init__(
-        self,
-        httpx_client: httpx.AsyncClient,
-        base_url: str,
-        agent_card_path: str = '/.well-known/agent.json',
+            self,
+            httpx_client: httpx.AsyncClient,
+            base_url: str,
+            agent_card_path: str = '/.well-known/agent.json',
     ):
         self.base_url = base_url.rstrip('/')
         self.agent_card_path = agent_card_path.lstrip('/')
@@ -65,10 +62,10 @@ class A2AClient:
     """A2A Client."""
 
     def __init__(
-        self,
-        httpx_client: httpx.AsyncClient,
-        agent_card: AgentCard | None = None,
-        url: str | None = None,
+            self,
+            httpx_client: httpx.AsyncClient,
+            agent_card: AgentCard | None = None,
+            url: str | None = None,
     ):
         if agent_card:
             self.url = agent_card.url
@@ -81,10 +78,10 @@ class A2AClient:
 
     @classmethod
     async def get_client_from_agent_card_url(
-        cls,
-        httpx_client: httpx.AsyncClient,
-        base_url: str,
-        agent_card_path: str = '/.well-known/agent.json',
+            cls,
+            httpx_client: httpx.AsyncClient,
+            base_url: str,
+            agent_card_path: str = '/.well-known/agent.json',
     ) -> 'A2AClient':
         """Get a A2A client for provided agent card URL."""
         agent_card: AgentCard = await A2ACardResolver(
@@ -93,7 +90,7 @@ class A2AClient:
         return A2AClient(httpx_client=httpx_client, agent_card=agent_card)
 
     async def send_message(
-        self, payload: dict[str, Any], request_id: str | int = uuid4().hex
+            self, payload: dict[str, Any], request_id: str | int = uuid4().hex
     ) -> SendMessageResponse:
         request = SendMessageRequest(
             id=request_id, params=MessageSendParams.model_validate(payload)
@@ -103,17 +100,17 @@ class A2AClient:
         )
 
     async def send_message_streaming(
-        self, payload: dict[str, Any], request_id: str | int = uuid4().hex
+            self, payload: dict[str, Any], request_id: str | int = uuid4().hex
     ) -> AsyncGenerator[SendMessageStreamingResponse, None]:
         request = SendMessageStreamingRequest(
             id=request_id, params=MessageSendParams.model_validate(payload)
         )
         async with aconnect_sse(
-            self.httpx_client,
-            'POST',
-            self.url,
-            json=request.model_dump(mode='json'),
-            timeout=None,
+                self.httpx_client,
+                'POST',
+                self.url,
+                json=request.model_dump(mode='json'),
+                timeout=None,
         ) as event_source:
             try:
                 async for sse in event_source.aiter_sse():
@@ -142,7 +139,7 @@ class A2AClient:
             raise A2AClientJSONError(str(e)) from e
 
     async def get_task(
-        self, payload: dict[str, Any], request_id: str | int = uuid4().hex
+            self, payload: dict[str, Any], request_id: str | int = uuid4().hex
     ) -> GetTaskResponse:
         request = GetTaskRequest(
             id=request_id, params=TaskQueryParams.model_validate(payload)
@@ -152,7 +149,7 @@ class A2AClient:
         )
 
     async def cancel_task(
-        self, payload: dict[str, Any], request_id: str | int = uuid4().hex
+            self, payload: dict[str, Any], request_id: str | int = uuid4().hex
     ) -> CancelTaskResponse:
         request = CancelTaskRequest(
             id=request_id, params=TaskIdParams.model_validate(payload)
@@ -162,7 +159,7 @@ class A2AClient:
         )
 
     async def set_task_callback(
-        self, payload: dict[str, Any], request_id: str | int = uuid4().hex
+            self, payload: dict[str, Any], request_id: str | int = uuid4().hex
     ) -> SetTaskPushNotificationConfigResponse:
         request = SetTaskPushNotificationConfigRequest(
             id=request_id,
@@ -173,7 +170,7 @@ class A2AClient:
         )
 
     async def get_task_callback(
-        self, payload: dict[str, Any], request_id: str | int = uuid4().hex
+            self, payload: dict[str, Any], request_id: str | int = uuid4().hex
     ) -> GetTaskPushNotificationConfigResponse:
         request = GetTaskPushNotificationConfigRequest(
             id=request_id, params=TaskIdParams.model_validate(payload)

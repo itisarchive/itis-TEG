@@ -2,11 +2,6 @@ import os
 import sys
 
 import click
-
-from agent import CurrencyAgent
-from agent_executor import CurrencyAgentExecutor
-from dotenv import load_dotenv
-
 from a2a.server import A2AServer, DefaultA2ARequestHandler, InMemoryTaskStore
 from a2a.types import (
     AgentAuthentication,
@@ -14,7 +9,10 @@ from a2a.types import (
     AgentCard,
     AgentSkill,
 )
+from dotenv import load_dotenv
 
+from agent import CurrencyAgent
+from agent_executor import CurrencyAgentExecutor
 
 load_dotenv()
 

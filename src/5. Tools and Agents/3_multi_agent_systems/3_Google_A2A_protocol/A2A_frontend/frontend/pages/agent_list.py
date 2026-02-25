@@ -1,7 +1,6 @@
 import asyncio
 
 import mesop as me
-
 from components.agent_list import agents_list
 from components.dialog import dialog, dialog_actions
 from components.header import header
@@ -23,9 +22,9 @@ def agent_list_page(app_state: AppState):
             agents_list(agents)
             with dialog(state.agent_dialog_open):
                 with me.box(
-                    style=me.Style(
-                        display='flex', flex_direction='column', gap=12
-                    )
+                        style=me.Style(
+                            display='flex', flex_direction='column', gap=12
+                        )
                 ):
                     me.input(
                         label='Agent Address',

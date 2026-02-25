@@ -1,12 +1,12 @@
 [project]
 name = "a2a-samples"
-version = "0.1.0"
+version = "1.0.0"
 description = "Agent2Agent samples"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.13"
 dependencies = [
-    "httpx>=0.28.1",
     "httpx-sse>=0.4.0",
+    "httpx>=0.28.1",
     "jwcrypto>=1.5.6",
     "pydantic>=2.10.6",
     "pyjwt>=2.10.1",

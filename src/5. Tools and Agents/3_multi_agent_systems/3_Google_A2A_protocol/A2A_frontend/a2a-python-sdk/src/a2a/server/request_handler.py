@@ -1,6 +1,5 @@
 import asyncio
 import logging
-
 from abc import ABC, abstractmethod
 from collections.abc import AsyncGenerator
 
@@ -41,7 +40,6 @@ from a2a.types import (
 )
 from a2a.utils import append_artifact_to_task
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -54,19 +52,19 @@ class A2ARequestHandler(ABC):
 
     @abstractmethod
     async def on_cancel_task(
-        self, request: CancelTaskRequest
+            self, request: CancelTaskRequest
     ) -> CancelTaskResponse:
         pass
 
     @abstractmethod
     async def on_message_send(
-        self, request: SendMessageRequest
+            self, request: SendMessageRequest
     ) -> SendMessageResponse:
         pass
 
     @abstractmethod
     async def on_message_send_stream(
-        self, request: SendMessageStreamingRequest
+            self, request: SendMessageStreamingRequest
     ) -> AsyncGenerator[SendMessageStreamingResponse, None]:
         yield SendMessageStreamingResponse(
             root=JSONRPCErrorResponse(
@@ -76,19 +74,19 @@ class A2ARequestHandler(ABC):
 
     @abstractmethod
     async def on_set_task_push_notification(
-        self, request: SetTaskPushNotificationConfigRequest
+            self, request: SetTaskPushNotificationConfigRequest
     ) -> SetTaskPushNotificationConfigResponse:
         pass
 
     @abstractmethod
     async def on_get_task_push_notification(
-        self, request: GetTaskPushNotificationConfigRequest
+            self, request: GetTaskPushNotificationConfigRequest
     ) -> GetTaskPushNotificationConfigResponse:
         pass
 
     @abstractmethod
     async def on_resubscribe_to_task(
-        self, request: TaskResubscriptionRequest
+            self, request: TaskResubscriptionRequest
     ) -> AsyncGenerator[SendMessageStreamingResponse, None]:
         yield SendMessageStreamingResponse(
             root=JSONRPCErrorResponse(
@@ -101,14 +99,14 @@ class DefaultA2ARequestHandler(A2ARequestHandler):
     """Default request handler for all incoming requests."""
 
     def __init__(
-        self, agent_executor: AgentExecutor, task_store: TaskStore | None = None
+            self, agent_executor: AgentExecutor, task_store: TaskStore | None = None
     ) -> None:
         self.agent_executor = agent_executor
         self.task_store = task_store or InMemoryTaskStore()
         self.background_streaming_tasks: set[asyncio.Task[None]] = set()
 
     def _build_error_response(
-        self, request_id: str | int | None, error: A2AError | JSONRPCError
+            self, request_id: str | int | None, error: A2AError | JSONRPCError
     ) -> JSONRPCErrorResponse:
         """Helper method to build a JSONRPCErrorResponse."""
         return JSONRPCErrorResponse(
@@ -131,7 +129,7 @@ class DefaultA2ARequestHandler(A2ARequestHandler):
         )
 
     async def on_cancel_task(
-        self, request: CancelTaskRequest
+            self, request: CancelTaskRequest
     ) -> CancelTaskResponse:
         """Default handler for 'tasks/cancel'."""
         task_id_params: TaskIdParams = request.params
@@ -153,7 +151,7 @@ class DefaultA2ARequestHandler(A2ARequestHandler):
         return response
 
     async def on_message_send(
-        self, request: SendMessageRequest
+            self, request: SendMessageRequest
     ) -> SendMessageResponse:
         """Default handler for 'message/send'."""
         message_send_params: MessageSendParams = request.params
@@ -168,7 +166,7 @@ class DefaultA2ARequestHandler(A2ARequestHandler):
         )
 
         if isinstance(response.root, SendMessageSuccessResponse) and isinstance(
-            response.root.result, Task
+                response.root.result, Task
         ):
             task = response.root.result
             await self.task_store.save(task)
@@ -176,8 +174,8 @@ class DefaultA2ARequestHandler(A2ARequestHandler):
         return response
 
     async def on_message_send_stream(  # type: ignore
-        self,
-        request: SendMessageStreamingRequest,
+            self,
+            request: SendMessageStreamingRequest,
     ) -> AsyncGenerator[SendMessageStreamingResponse, None]:
         """Default handler for 'message/sendStream'."""
         message_send_params: MessageSendParams = request.params
@@ -189,7 +187,7 @@ class DefaultA2ARequestHandler(A2ARequestHandler):
         return self._setup_sse_consumer(task, request)
 
     async def on_set_task_push_notification(
-        self, request: SetTaskPushNotificationConfigRequest
+            self, request: SetTaskPushNotificationConfigRequest
     ) -> SetTaskPushNotificationConfigResponse:
         """Default handler for 'tasks/pushNotificationConfig/set'."""
         return SetTaskPushNotificationConfigResponse(
@@ -199,7 +197,7 @@ class DefaultA2ARequestHandler(A2ARequestHandler):
         )
 
     async def on_get_task_push_notification(
-        self, request: GetTaskPushNotificationConfigRequest
+            self, request: GetTaskPushNotificationConfigRequest
     ) -> GetTaskPushNotificationConfigResponse:
         """Default handler for 'tasks/pushNotificationConfig/get'."""
         return GetTaskPushNotificationConfigResponse(
@@ -209,7 +207,7 @@ class DefaultA2ARequestHandler(A2ARequestHandler):
         )
 
     async def on_resubscribe_to_task(  # type: ignore
-        self, request: TaskResubscriptionRequest
+            self, request: TaskResubscriptionRequest
     ) -> AsyncGenerator[SendMessageStreamingResponse, None]:
         """Default handler for 'tasks/resubscribe'."""
         task_id_params: TaskIdParams = request.params
@@ -218,9 +216,9 @@ class DefaultA2ARequestHandler(A2ARequestHandler):
         return self._setup_sse_consumer(task, request)
 
     async def _setup_sse_consumer(
-        self,
-        task: Task | None,
-        request: TaskResubscriptionRequest | SendMessageStreamingRequest,
+            self,
+            task: Task | None,
+            request: TaskResubscriptionRequest | SendMessageStreamingRequest,
     ) -> AsyncGenerator[SendMessageStreamingResponse, None]:
         # create a sse_queue that allows streaming responses back to the user
         sse_queue: StreamingResponseQueue = StreamingResponseQueue()
@@ -242,22 +240,22 @@ class DefaultA2ARequestHandler(A2ARequestHandler):
             yield event
             # end the stream on error or TaskStatusUpdateEvent.final = true or Message.final = true
             if isinstance(event.root, JSONRPCErrorResponse) or (
-                (
-                    isinstance(event.root.result, TaskStatusUpdateEvent)
-                    and event.root.result.final
-                )
-                or (
-                    isinstance(event.root.result, Message)
-                    and event.root.result.final
-                )
+                    (
+                            isinstance(event.root.result, TaskStatusUpdateEvent)
+                            and event.root.result.final
+                    )
+                    or (
+                            isinstance(event.root.result, Message)
+                            and event.root.result.final
+                    )
             ):
                 break
 
     async def _execute_streaming_agent_task(
-        self,
-        sse_queue: StreamingResponseQueue,
-        task: Task | None,
-        request: TaskResubscriptionRequest | SendMessageStreamingRequest,
+            self,
+            sse_queue: StreamingResponseQueue,
+            task: Task | None,
+            request: TaskResubscriptionRequest | SendMessageStreamingRequest,
     ) -> None:
         """Background task to run agent streaming."""
         try:
@@ -281,22 +279,22 @@ class DefaultA2ARequestHandler(A2ARequestHandler):
             async for response in agent_response:
                 response_root = response.root
                 if isinstance(
-                    response_root, SendMessageStreamingSuccessResponse
+                        response_root, SendMessageStreamingSuccessResponse
                 ):
                     task_event = response_root.result
                     if isinstance(
-                        task_event,
-                        TaskStatusUpdateEvent | TaskArtifactUpdateEvent,
+                            task_event,
+                            TaskStatusUpdateEvent | TaskArtifactUpdateEvent,
                     ):
                         task = await self.task_store.get(task_event.taskId)
 
                     if task and isinstance(
-                        response_root.result, TaskStatusUpdateEvent
+                            response_root.result, TaskStatusUpdateEvent
                     ):
                         task.status = response_root.result.status
                         await self.task_store.save(task)
                     elif task and isinstance(
-                        response_root.result, TaskArtifactUpdateEvent
+                            response_root.result, TaskArtifactUpdateEvent
                     ):
                         append_artifact_to_task(task, response_root.result)
                         await self.task_store.save(task)
@@ -316,7 +314,7 @@ class DefaultA2ARequestHandler(A2ARequestHandler):
             sse_queue.enqueue_event(error_response)
 
     def _append_message_to_task(
-        self, message_send_params: MessageSendParams, task: Task | None
+            self, message_send_params: MessageSendParams, task: Task | None
     ) -> None:
         if task:
             if task.history:
