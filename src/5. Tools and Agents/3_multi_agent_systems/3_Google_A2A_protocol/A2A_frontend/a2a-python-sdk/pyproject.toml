@@ -1,12 +1,12 @@
 [project]
 name = "a2a"
-version = "0.2.0"
+version = "1.0.0"
 description = "A2A Python SDK"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.13"
 dependencies = [
-    "httpx>=0.28.1",
     "httpx-sse>=0.4.0",
+    "httpx>=0.28.1",
     "pydantic>=2.11.3",
     "sse-starlette>=2.3.3",
     "starlette>=0.46.2",
