@@ -1,38 +1,45 @@
 """
-LangGraph ReAct Agent Foundation
-===============================
+🧠 LangGraph ReAct Agent Foundation
+====================================
 
 This script demonstrates LangGraph's ReAct (Reasoning + Acting) agent pattern:
-1. Creating agents with create_react_agent
-2. Understanding stateful conversations with thread-based persistence
-3. Multi-tool agents that can reason about tool selection
-4. How LangGraph manages agent decision-making loops
 
-Key learning points:
-- ReAct agents combine reasoning and tool execution
-- Stateful conversations persist across multiple interactions
-- Agent graphs can be invoked with different configurations
-- LangGraph handles the reasoning → action → observation cycle automatically
+1. Creating agents with create_react_agent
+2. Stateful conversations with thread-based persistence (MemorySaver)
+3. Multi-tool agents that reason about which tool to select
+4. How LangGraph manages the reasoning → action → observation cycle
+
+🔧 Prerequisites:
+- Azure OpenAI credentials in .env file
+- Python 3.13+ with langgraph, langchain-openai, python-dotenv packages
 """
 
+import textwrap
+from typing import Any
+
 from dotenv import load_dotenv
+from langchain_core.messages import HumanMessage
+from langchain_core.runnables.config import RunnableConfig
 from langchain_core.tools import tool
-from langchain_openai import ChatOpenAI
+from langchain_openai import AzureChatOpenAI
+from langgraph.checkpoint.memory import MemorySaver
+from langgraph.graph.state import CompiledStateGraph
 from langgraph.prebuilt import create_react_agent
 
-# ================================
-# SETUP AND CONFIGURATION
-# ================================
+DEPLOYMENT_MODEL = "gpt-4.1-mini"
 
-load_dotenv(override=True)
+REACT_AGENT_SYSTEM_PROMPT = """\
+You are a helpful assistant that can perform calculations and text analysis.
 
-# Initialize the language model
-llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+When working with numbers, show your reasoning step by step.
+When asked to perform multiple operations, break them down clearly.
+Always explain what you're doing before using tools."""
 
 
-# ================================
-# TOOL DEFINITIONS
-# ================================
+def print_section_header(title: str) -> None:
+    separator = "=" * 60
+    print(f"\n{separator}\n{title}\n{separator}")
+
 
 @tool
 def multiply(a: int, b: int) -> int:
@@ -85,153 +92,215 @@ def get_word_length(word: str) -> int:
     return len(word)
 
 
-# ================================
-# AGENT CREATION
-# ================================
+def build_react_agent(llm: AzureChatOpenAI) -> CompiledStateGraph:
+    """
+    Creates a ReAct agent graph with math and text analysis tools,
+    a system prompt defining agent behavior, and an in-memory
+    checkpointer that enables stateful (thread-based) conversations.
+    """
+    available_tools = [multiply, add, power, get_word_length]
 
-# Define available tools
-tools = [multiply, add, power, get_word_length]
+    return create_react_agent(
+        llm,
+        tools=available_tools,
+        prompt=REACT_AGENT_SYSTEM_PROMPT,
+        checkpointer=MemorySaver(),
+    )
 
-# Create system prompt for the agent
-system_prompt = """You are a helpful assistant that can perform calculations and text analysis.
 
-When working with numbers, show your reasoning step by step.
-When asked to perform multiple operations, break them down clearly.
-Always explain what you're doing before using tools."""
+def invoke_agent_with_query(
+        agent_graph: CompiledStateGraph,
+        *,
+        query: str,
+        config: RunnableConfig,
+) -> str:
+    """Sends a user query to the agent graph and returns the final message content."""
+    agent_input: dict[str, Any] = {"messages": [HumanMessage(content=query)]}
+    agent_output = agent_graph.invoke(agent_input, config=config)  # type: ignore[arg-type]
+    return agent_output["messages"][-1].content
 
-# Create the ReAct agent
-from langgraph.checkpoint.memory import MemorySaver
 
-agent_graph = create_react_agent(
-    llm,
-    tools=tools,
-    prompt=system_prompt,
-    checkpointer=MemorySaver()
-)
+def demonstrate_simple_calculation(agent_graph: CompiledStateGraph, session_config: RunnableConfig) -> None:
+    """
+    A single-tool invocation: the agent recognizes that the user's question
+    maps to the multiply tool, calls it, and returns the result.
+    """
+    print_section_header("EXAMPLE 1: Simple Calculation")
+    print(textwrap.dedent(demonstrate_simple_calculation.__doc__))
 
-# ================================
-# EXAMPLE 1: SIMPLE CALCULATION
-# ================================
+    simple_math_query = "What's 8 multiplied by 7?"
+    print(f"Query: {simple_math_query}")
 
-print("=== EXAMPLE 1: Simple Calculation ===")
+    simple_math_answer = invoke_agent_with_query(
+        agent_graph, query=simple_math_query, config=session_config,
+    )
+    print(f"Response: {simple_math_answer}")
 
-session_id = "math_session_1"
-config = {'configurable': {'thread_id': session_id}}
 
-query1 = "What's 8 multiplied by 7?"
-print(f"Query: {query1}")
+def demonstrate_multi_step_calculation(agent_graph: CompiledStateGraph, session_config: RunnableConfig) -> None:
+    """
+    The agent chains two tool calls: first it calls power(), then feeds
+    the intermediate result into add() — all within a single user request.
+    """
+    print_section_header("EXAMPLE 2: Multi-Step Calculation")
+    print(textwrap.dedent(demonstrate_multi_step_calculation.__doc__))
 
-response1 = agent_graph.invoke({'messages': [('user', query1)]}, config)
-print(f"Response: {response1['messages'][-1].content}")
-# Expected: Agent uses multiply tool and provides answer
+    multi_step_query = "Calculate 5 to the power of 3, then add 20 to the result"
+    print(f"Query: {multi_step_query}")
 
-# ================================
-# EXAMPLE 2: MULTI-STEP CALCULATION
-# ================================
+    multi_step_answer = invoke_agent_with_query(
+        agent_graph, query=multi_step_query, config=session_config,
+    )
+    print(f"Response: {multi_step_answer}")
 
-print("\n=== EXAMPLE 2: Multi-Step Calculation ===")
 
-query2 = "Calculate 5 to the power of 3, then add 20 to the result"
-print(f"Query: {query2}")
+def demonstrate_mixed_tool_operations(agent_graph: CompiledStateGraph, session_config: RunnableConfig) -> None:
+    """
+    Mixing different tool categories: the agent first measures word length
+    (text tool), then multiplies the result (math tool) — demonstrating
+    cross-domain tool chaining.
+    """
+    print_section_header("EXAMPLE 3: Mixed Operations")
+    print(textwrap.dedent(demonstrate_mixed_tool_operations.__doc__))
 
-response2 = agent_graph.invoke({'messages': [('user', query2)]}, config)
-print(f"Response: {response2['messages'][-1].content}")
-# Expected: Agent uses power tool, then add tool, shows reasoning
+    mixed_ops_query = "How many characters are in the word 'LangGraph'? Then multiply that by 4."
+    print(f"Query: {mixed_ops_query}")
 
-# ================================
-# EXAMPLE 3: MIXED OPERATIONS
-# ================================
+    mixed_ops_answer = invoke_agent_with_query(
+        agent_graph, query=mixed_ops_query, config=session_config,
+    )
+    print(f"Response: {mixed_ops_answer}")
 
-print("\n=== EXAMPLE 3: Mixed Operations ===")
 
-query3 = "How many characters are in the word 'LangGraph'? Then multiply that by 4."
-print(f"Query: {query3}")
+def demonstrate_conversational_memory(agent_graph: CompiledStateGraph, session_config: RunnableConfig) -> None:
+    """
+    The MemorySaver checkpointer persists all messages within a thread_id.
+    Asking about "the previous calculation" works because the agent has
+    access to the full conversation history from earlier examples.
+    """
+    print_section_header("EXAMPLE 4: Conversational Context")
+    print(textwrap.dedent(demonstrate_conversational_memory.__doc__))
 
-response3 = agent_graph.invoke({'messages': [('user', query3)]}, config)
-print(f"Response: {response3['messages'][-1].content}")
-# Expected: Agent uses get_word_length, then multiply tool
+    context_recall_query = "Can you remind me what the result was from the previous calculation?"
+    print(f"Query: {context_recall_query}")
 
-# ================================
-# EXAMPLE 4: CONVERSATIONAL CONTEXT
-# ================================
+    context_recall_answer = invoke_agent_with_query(
+        agent_graph, query=context_recall_query, config=session_config,
+    )
+    print(f"Response: {context_recall_answer}")
 
-print("\n=== EXAMPLE 4: Conversational Context ===")
 
-query4 = "Can you remind me what the result was from the previous calculation?"
-print(f"Query: {query4}")
+def demonstrate_fresh_session(agent_graph: CompiledStateGraph, fresh_session_config: RunnableConfig) -> None:
+    """
+    A new thread_id starts a blank conversation — the agent has no memory
+    of interactions from other threads, proving that context isolation works.
+    """
+    print_section_header("EXAMPLE 5: New Session (Fresh Context)")
+    print(textwrap.dedent(demonstrate_fresh_session.__doc__))
 
-response4 = agent_graph.invoke({'messages': [('user', query4)]}, config)
-print(f"Response: {response4['messages'][-1].content}")
-# Expected: Agent remembers previous context due to thread persistence
+    no_context_query = "What was the result from the previous calculation?"
+    print(f"Query: {no_context_query}")
 
-# ================================
-# EXAMPLE 5: NEW SESSION (NO CONTEXT)
-# ================================
+    no_context_answer = invoke_agent_with_query(
+        agent_graph, query=no_context_query, config=fresh_session_config,
+    )
+    print(f"Response: {no_context_answer}")
 
-print("\n=== EXAMPLE 5: New Session (Fresh Context) ===")
 
-new_session_id = "math_session_2"
-new_config = {'configurable': {'thread_id': new_session_id}}
+def demonstrate_complex_multi_tool_reasoning(agent_graph: CompiledStateGraph, session_config: RunnableConfig) -> None:
+    """
+    A three-step pipeline expressed in natural language: the agent must
+    plan a sequence of get_word_length → power → add, executing each
+    tool in order while carrying intermediate results forward.
+    """
+    print_section_header("EXAMPLE 6: Complex Multi-Tool Reasoning")
+    print(textwrap.dedent(demonstrate_complex_multi_tool_reasoning.__doc__))
 
-query5 = "What was the result from the previous calculation?"
-print(f"Query: {query5}")
+    complex_query = textwrap.dedent("""\
+        I have a word 'Python' and I want to:
+        1. Find out how many characters it has
+        2. Raise that number to the power of 2
+        3. Add 15 to the final result
 
-response5 = agent_graph.invoke({'messages': [('user', query5)]}, config)
-print(f"Response: {response5['messages'][-1].content}")
-# Expected: Agent has no memory of previous session
+        Please work through this step by step.""")
 
-# ================================
-# EXAMPLE 6: COMPLEX REASONING
-# ================================
+    print(f"Complex Query: {complex_query}")
 
-print("\n=== EXAMPLE 6: Complex Multi-Tool Reasoning ===")
+    complex_answer = invoke_agent_with_query(
+        agent_graph, query=complex_query, config=session_config,
+    )
+    print(f"Response: {complex_answer}")
 
-complex_query = """
-I have a word 'Python' and I want to:
-1. Find out how many characters it has
-2. Raise that number to the power of 2
-3. Add 15 to the final result
 
-Please work through this step by step.
-"""
+def demonstrate_agent_without_tools(agent_graph: CompiledStateGraph, session_config: RunnableConfig) -> None:
+    """
+    When the user's request does not require any tool, the agent simply
+    responds with its own reasoning — no tool calls are generated.
+    This shows that tool invocation is purely intent-driven.
+    """
+    print_section_header("EXAMPLE 7: Agent Decision Making")
+    print(textwrap.dedent(demonstrate_agent_without_tools.__doc__))
 
-print(f"Complex Query: {complex_query.strip()}")
+    suggestion_query = "I need to do some math but I'm not sure what. Can you suggest something?"
+    print(f"Query: {suggestion_query}")
 
-response6 = agent_graph.invoke({'messages': [('user', complex_query)]}, new_config)
-print(f"Response: {response6['messages'][-1].content}")
-# Expected: Agent uses all three tools in sequence with clear reasoning
+    suggestion_answer = invoke_agent_with_query(
+        agent_graph, query=suggestion_query, config=session_config,
+    )
+    print(f"Response: {suggestion_answer}")
 
-# ================================
-# EXAMPLE 7: AGENT DECISION MAKING
-# ================================
 
-print("\n=== EXAMPLE 7: Agent Decision Making ===")
+def print_conversation_analysis(
+        agent_graph: CompiledStateGraph,
+        *,
+        first_session_config: RunnableConfig,
+        second_session_config: RunnableConfig,
+) -> None:
+    print_section_header("CONVERSATION ANALYSIS")
 
-query7 = "I need to do some math but I'm not sure what. Can you suggest something?"
-print(f"Query: {query7}")
+    first_session_state = agent_graph.get_state(first_session_config)
+    second_session_state = agent_graph.get_state(second_session_config)
 
-response7 = agent_graph.invoke({'messages': [('user', query7)]}, new_config)
-print(f"Response: {response7['messages'][-1].content}")
-# Expected: Agent provides suggestions without using tools
+    print(textwrap.dedent(f"""\
+        Session 1 conversation history:
+        Total messages in session 1: {len(first_session_state.values['messages'])}
 
-# ================================
-# ANALYZING THE CONVERSATION
-# ================================
+        Session 2 conversation history:
+        Total messages in session 2: {len(second_session_state.values['messages'])}"""))
 
-print("\n=== CONVERSATION ANALYSIS ===")
 
-print("Session 1 conversation history:")
-session1_messages = agent_graph.get_state(config)
-print(f"Total messages in session 1: {len(session1_messages.values['messages'])}")
+def print_key_takeaways() -> None:
+    print_section_header("🎯 Key Takeaways")
 
-print("\nSession 2 conversation history:")
-session2_messages = agent_graph.get_state(new_config)
-print(f"Total messages in session 2: {len(session2_messages.values['messages'])}")
+    print(textwrap.dedent("""\
+        1. ReAct agents combine reasoning with tool execution automatically
+        2. Thread-based persistence maintains conversation context
+        3. Agents make intelligent decisions about which tools to use
+        4. Multi-step reasoning is handled seamlessly
+        5. Different thread IDs create separate conversation contexts
+        6. LangGraph manages the observe → think → act cycle
+    """))
 
-print("\n=== Key Takeaways ===")
-print("1. ReAct agents combine reasoning with tool execution automatically")
-print("2. Thread-based persistence maintains conversation context")
-print("3. Agents make intelligent decisions about which tools to use")
-print("4. Multi-step reasoning is handled seamlessly")
-print("5. Different thread IDs create separate conversation contexts")
-print("6. LangGraph manages the observe → think → act cycle")
+
+if __name__ == "__main__":
+    load_dotenv(override=True)
+    azure_llm = AzureChatOpenAI(model=DEPLOYMENT_MODEL, temperature=0)
+
+    react_agent_graph = build_react_agent(azure_llm)
+
+    session_1_config: RunnableConfig = {"configurable": {"thread_id": "math_session_1"}}
+    session_2_config: RunnableConfig = {"configurable": {"thread_id": "math_session_2"}}
+
+    demonstrate_simple_calculation(react_agent_graph, session_config=session_1_config)
+    demonstrate_multi_step_calculation(react_agent_graph, session_config=session_1_config)
+    demonstrate_mixed_tool_operations(react_agent_graph, session_config=session_1_config)
+    demonstrate_conversational_memory(react_agent_graph, session_config=session_1_config)
+    demonstrate_fresh_session(react_agent_graph, fresh_session_config=session_2_config)
+    demonstrate_complex_multi_tool_reasoning(react_agent_graph, session_config=session_2_config)
+    demonstrate_agent_without_tools(react_agent_graph, session_config=session_2_config)
+    print_conversation_analysis(
+        react_agent_graph,
+        first_session_config=session_1_config,
+        second_session_config=session_2_config,
+    )
+    print_key_takeaways()

@@ -1,39 +1,38 @@
 """
-LangChain Tools Introduction
-===========================
+🔗 LangChain Tools Introduction
+================================
 
-This script demonstrates LangChain's approach to tools and agents:
-1. Creating tools with the @tool decorator
-2. Understanding the difference between manual tool execution and agent-based execution
-3. Introduction to LangChain agents and tool calling patterns
-4. Comparing raw OpenAI function calling vs LangChain abstractions
+This script demonstrates LangChain's approach to tools and agents,
+contrasting it with the raw OpenAI function calling from the previous example:
 
-Key learning points:
-- @tool decorator simplifies tool creation with automatic schema generation
-- LangChain agents handle the tool execution loop automatically
-- Tools can have rich docstrings for better model understanding
-- AgentExecutor manages the conversation and tool execution flow
+1. Creating tools with the @tool decorator (automatic JSON schema generation)
+2. Manual tool execution vs fully automated agent-based execution
+3. LangChain agents and the AgentExecutor tool-calling loop
+4. Tool introspection and comparing both approaches
+
+🔧 Prerequisites:
+- Azure OpenAI credentials in .env file
+- Python 3.13+ with langchain, langchain-openai, python-dotenv packages
 """
 
 import json
+import textwrap
+from typing import cast
 
 from dotenv import load_dotenv
 from langchain import hub
 from langchain.agents import AgentExecutor, create_tool_calling_agent
+from langchain_core.messages import AIMessage
 from langchain_core.tools import tool
-from langchain_openai import ChatOpenAI
+from langchain_openai import AzureChatOpenAI
 
-# ================================
-# SETUP AND CONFIGURATION
-# ================================
-
-load_dotenv(override=True)
-model = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+DEPLOYMENT_MODEL = "gpt-4.1-mini"
 
 
-# ================================
-# LANGCHAIN TOOL DEFINITIONS
-# ================================
+def print_section_header(title: str) -> None:
+    separator = "=" * 60
+    print(f"\n{separator}\n{title}\n{separator}")
+
 
 @tool
 def get_current_weather(location: str, unit: str = "fahrenheit") -> str:
@@ -44,13 +43,13 @@ def get_current_weather(location: str, unit: str = "fahrenheit") -> str:
         location: The city and state, e.g. San Francisco, CA.
         unit: The unit of temperature, can be 'celsius' or 'fahrenheit'. Defaults to 'fahrenheit'.
     """
-    weather_info = {
+    weather_data = {
         "location": location,
         "temperature": "72",
         "unit": unit,
         "forecast": ["sunny", "windy"],
     }
-    return json.dumps(weather_info)
+    return json.dumps(weather_data)
 
 
 @tool
@@ -79,112 +78,142 @@ def add(a: int, b: int) -> int:
     return a + b
 
 
-# ================================
-# EXAMPLE 1: BASIC TOOL USAGE (MANUAL)
-# ================================
+def demonstrate_manual_tool_execution(llm: AzureChatOpenAI) -> None:
+    """
+    bind_tools() attaches tool schemas to the model. When invoked, the model
+    returns an AIMessage containing tool_calls metadata instead of executing
+    anything — you must invoke the tool manually with the parsed arguments.
+    """
+    print_section_header("EXAMPLE 1: Manual Tool Execution")
+    print(textwrap.dedent(demonstrate_manual_tool_execution.__doc__))
 
-print("=== EXAMPLE 1: Manual Tool Execution ===")
+    llm_with_tools = llm.bind_tools([get_current_weather, multiply])
 
-# Bind tools to model
-model_with_tools = model.bind_tools([get_current_weather, multiply])
+    weather_query = "What's the weather in San Francisco?"
+    tool_call_response = cast(AIMessage, llm_with_tools.invoke(weather_query))
 
-# Get model response with tool calls
-response = model_with_tools.invoke("What's the weather in San Francisco?")
+    print(textwrap.dedent(f"""\
+        Model response:
+        Content: {tool_call_response.content}
+        Tool calls: {tool_call_response.tool_calls}"""))
 
-print("Model response:")
-print(f"Content: {response.content}")
-print(f"Tool calls: {response.tool_calls}")
-# Expected: Model returns tool call information, not executed results
+    if tool_call_response.tool_calls:
+        first_tool_call = tool_call_response.tool_calls[0]
+        print(f"\nTool to call: {first_tool_call['name']}")
+        print(f"Arguments: {first_tool_call['args']}")
 
-if response.tool_calls:
-    tool_call = response.tool_calls[0]
-    print(f"\nTool to call: {tool_call['name']}")
-    print(f"Arguments: {tool_call['args']}")
+        if first_tool_call["name"] == "get_current_weather":
+            manual_execution_result = get_current_weather.invoke(first_tool_call["args"])
+            print(f"Manual execution result: {manual_execution_result}")
 
-    # Manual execution using LangChain tool invoke method
-    if tool_call['name'] == 'get_current_weather':
-        result = get_current_weather.invoke(tool_call['args'])
-        print(f"Manual execution result: {result}")
 
-# ================================
-# EXAMPLE 2: MODEL WITHOUT TOOLS
-# ================================
+def demonstrate_model_without_tools(llm: AzureChatOpenAI) -> None:
+    """
+    Without tools bound, the model can only respond with its internal
+    knowledge — it cannot reach external data or perform actions.
+    """
+    print_section_header("EXAMPLE 2: Model Without Tools")
+    print(textwrap.dedent(demonstrate_model_without_tools.__doc__))
 
-print("\n=== EXAMPLE 2: Model Without Tools ===")
+    plain_response = llm.invoke("What's the weather in San Francisco?")
+    print(f"Response without tools:\n{plain_response.content}")
 
-response = model.invoke("What's the weather in San Francisco?")
-print("Response without tools:")
-print(response.content)
-# Expected: Model explains it cannot access weather data
 
-# ================================
-# EXAMPLE 3: LANGCHAIN AGENT (AUTOMATED)
-# ================================
+def demonstrate_agent_with_executor(llm: AzureChatOpenAI) -> AgentExecutor:
+    """
+    A LangChain agent wraps a model + tools + prompt into a single unit.
+    The AgentExecutor handles the full observe → think → act loop:
+    it automatically invokes tools, feeds results back to the model,
+    and repeats until the model produces a final answer.
+    """
+    print_section_header("EXAMPLE 3: LangChain Agent with Tools")
+    print(textwrap.dedent(demonstrate_agent_with_executor.__doc__))
 
-print("\n=== EXAMPLE 3: LangChain Agent with Tools ===")
+    agent_prompt = hub.pull("hwchase17/openai-tools-agent")
+    available_tools = [get_current_weather, multiply, add]
 
-# Get a pre-built prompt for tool-calling agents
-prompt = hub.pull("hwchase17/openai-tools-agent")
+    tool_calling_agent = create_tool_calling_agent(llm, available_tools, agent_prompt)
+    executor = AgentExecutor(agent=tool_calling_agent, tools=available_tools, verbose=True)
 
-# Create tools list
-tools = [get_current_weather, multiply, add]
+    multiplication_query = "What's 5 multiplied by 8?"
+    print(f"Query: {multiplication_query}")
+    multiplication_result = executor.invoke({"input": multiplication_query})
+    print(f"Agent result: {multiplication_result['output']}")
 
-# Create agent
-agent = create_tool_calling_agent(model, tools, prompt)
+    return executor
 
-# Create executor (handles the tool execution loop)
-agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
 
-print("Query: What's 5 multiplied by 8?")
-result = agent_executor.invoke({"input": "What's 5 multiplied by 8?"})
-print(f"Agent result: {result['output']}")
+def demonstrate_multi_step_query(executor: AgentExecutor) -> None:
+    """
+    Agents shine on multi-step tasks: the model chains tool calls
+    automatically — e.g., first fetching weather data, then performing
+    arithmetic on the returned temperature.
+    """
+    print_section_header("EXAMPLE 4: Multi-Step Query")
+    print(textwrap.dedent(demonstrate_multi_step_query.__doc__))
 
-# ================================
-# EXAMPLE 4: COMPLEX MULTI-STEP QUERY
-# ================================
+    multi_step_query = "Get the weather in Boston, then multiply the temperature by 2"
+    print(f"Complex query: {multi_step_query}")
 
-print("\n=== EXAMPLE 4: Multi-Step Query ===")
+    multi_step_result = executor.invoke({"input": multi_step_query})
+    print(f"Multi-step result: {multi_step_result['output']}")
 
-complex_query = "Get the weather in Boston, then multiply the temperature by 2"
-print(f"Complex query: {complex_query}")
 
-result = agent_executor.invoke({"input": complex_query})
-print(f"Multi-step result: {result['output']}")
-# Expected: Agent calls weather function, extracts temperature, then calls multiply
+def demonstrate_tool_introspection() -> None:
+    """
+    Every @tool-decorated function exposes its name, description,
+    and full JSON Schema via args_schema — this is exactly what
+    the model sees when deciding which tool to invoke.
+    """
+    print_section_header("EXAMPLE 5: Tool Introspection")
+    print(textwrap.dedent(demonstrate_tool_introspection.__doc__))
 
-# ================================
-# EXAMPLE 5: TOOL INTROSPECTION
-# ================================
+    available_tools = [get_current_weather, multiply, add]
 
-print("\n=== EXAMPLE 5: Tool Introspection ===")
+    print("Available tools:")
+    for registered_tool in available_tools:
+        print(f"- {registered_tool.name}: {registered_tool.description}")
+        print(f"  Schema: {registered_tool.args_schema.model_json_schema()}")
 
-print("Available tools:")
-for tool in tools:
-    print(f"- {tool.name}: {tool.description}")
-    print(f"  Schema: {tool.args_schema.model_json_schema()}")
 
-# ================================
-# EXAMPLE 6: COMPARING APPROACHES
-# ================================
+def print_approach_comparison() -> None:
+    print_section_header("EXAMPLE 6: Comparing Approaches")
 
-print("\n=== EXAMPLE 6: Comparing Approaches ===")
+    print(textwrap.dedent("""\
+        OpenAI Function Calling:
+        + Direct control over function execution
+        + Minimal abstraction
+        - Manual conversation management
+        - More boilerplate code
 
-print("OpenAI Function Calling:")
-print("+ Direct control over function execution")
-print("+ Minimal abstraction")
-print("- Manual conversation management")
-print("- More boilerplate code")
+        LangChain Tools & Agents:
+        + Automatic tool execution loop
+        + Rich tool ecosystem
+        + Conversation management handled
+        + Easy tool composition
+        - Additional abstraction layer"""))
 
-print("\nLangChain Tools & Agents:")
-print("+ Automatic tool execution loop")
-print("+ Rich tool ecosystem")
-print("+ Conversation management handled")
-print("+ Easy tool composition")
-print("- Additional abstraction layer")
 
-print("\n=== Key Takeaways ===")
-print("1. @tool decorator automatically generates schemas from docstrings")
-print("2. LangChain agents handle the tool execution loop automatically")
-print("3. AgentExecutor manages conversation flow and tool invocation")
-print("4. Tools can be composed and reused across different agents")
-print("5. Rich docstrings improve model understanding of tool purposes")
+def print_key_takeaways() -> None:
+    print_section_header("🎯 Key Takeaways")
+
+    print(textwrap.dedent("""\
+        1. @tool decorator automatically generates schemas from docstrings
+        2. LangChain agents handle the tool execution loop automatically
+        3. AgentExecutor manages conversation flow and tool invocation
+        4. Tools can be composed and reused across different agents
+        5. Rich docstrings improve model understanding of tool purposes
+    """))
+
+
+if __name__ == "__main__":
+    load_dotenv(override=True)
+    azure_llm = AzureChatOpenAI(model=DEPLOYMENT_MODEL, temperature=0)
+
+    demonstrate_manual_tool_execution(azure_llm)
+    demonstrate_model_without_tools(azure_llm)
+    agent_executor = demonstrate_agent_with_executor(azure_llm)
+    demonstrate_multi_step_query(agent_executor)
+    demonstrate_tool_introspection()
+    print_approach_comparison()
+    print_key_takeaways()

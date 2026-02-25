@@ -1,10 +1,13 @@
 # Module 1: Basic Agents Foundation
 
-This module introduces the fundamental concepts of AI agents and tools, providing a comprehensive foundation for building intelligent applications. The content follows a progressive learning path from basic function calling to sophisticated multi-tool agents.
+This module introduces the fundamental concepts of AI agents and tools, providing a comprehensive foundation for
+building intelligent applications. The content follows a progressive learning path from basic function calling to
+sophisticated multi-tool agents.
 
 ## 📚 Learning Objectives
 
 By completing this module, you will:
+
 - Understand OpenAI function calling mechanisms and patterns
 - Master LangChain's tool ecosystem and agent frameworks
 - Build stateful, conversational agents with LangGraph
@@ -14,21 +17,27 @@ By completing this module, you will:
 ## 🎯 Core Examples
 
 ### `01_openai_function_calling.py`
+
 **OpenAI Function Calling Fundamentals**
+
 - Function schema definition and validation
 - Model decision-making for function calls
 - Complete function calling workflow implementation
 - Handling edge cases and error scenarios
 
 ### `02_langchain_tools_intro.py`
+
 **LangChain Tools and Agent Patterns**
+
 - `@tool` decorator for automatic schema generation
 - Manual vs automated tool execution
 - Agent creation with LangChain's AgentExecutor
 - Tool composition and reusability
 
 ### `03_langgraph_react_agent.py`
+
 **LangGraph ReAct Agent Foundations**
+
 - ReAct (Reasoning + Acting) agent pattern
 - Stateful conversations with thread persistence
 - Multi-tool reasoning and decision-making
@@ -37,6 +46,7 @@ By completing this module, you will:
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - Python 3.10 or higher
 - OpenAI API key (get one at [platform.openai.com](https://platform.openai.com/api-keys))
 
@@ -63,6 +73,7 @@ By completing this module, you will:
 ## 🎯 Key Concepts Covered
 
 ### OpenAI Function Calling
+
 - **Function Schema Design**: JSON schema creation for OpenAI models
 - **Model Decision Logic**: How models choose when to call functions
 - **Workflow Patterns**: Complete request-response cycles
@@ -70,6 +81,7 @@ By completing this module, you will:
 - **Error Handling**: Graceful failure management
 
 ### LangChain Tools Ecosystem
+
 - **Tool Decorator**: Automatic schema generation from docstrings
 - **Agent Architecture**: AgentExecutor and tool orchestration
 - **Tool Composition**: Combining multiple tools effectively
@@ -77,6 +89,7 @@ By completing this module, you will:
 - **Conversation Flow**: Multi-turn interactions with context
 
 ### LangGraph ReAct Agents
+
 - **ReAct Pattern**: Reasoning and Acting in agent workflows
 - **State Management**: Thread-based conversation persistence
 - **Multi-tool Reasoning**: Complex decision-making across tools
@@ -88,18 +101,21 @@ By completing this module, you will:
 ### Architecture Patterns
 
 **OpenAI Function Calling Flow:**
+
 ```
 User Query → Model Analysis → Function Call Decision →
 Function Execution → Response Integration → Final Answer
 ```
 
 **LangChain Agent Flow:**
+
 ```
 User Input → Agent Reasoning → Tool Selection →
 Tool Execution → Response Processing → Output Generation
 ```
 
 **LangGraph ReAct Flow:**
+
 ```
 Observation → Reasoning → Action Planning →
 Tool Execution → State Update → Next Iteration
@@ -108,14 +124,17 @@ Tool Execution → State Update → Next Iteration
 ## 💡 Hands-On Learning Exercises
 
 ### Exercise 1: Extend OpenAI Function Calling
+
 **Objective**: Add a new function to the OpenAI function calling example
 
 **Challenge**:
+
 - Add a `calculate_area_circle(radius)` function that calculates circle area
 - Create the proper JSON schema with parameter validation
 - Test with queries like "What's the area of a circle with radius 5?"
 
 **Skills Practiced**:
+
 - Function implementation with math operations
 - JSON schema creation and validation
 - Understanding OpenAI function calling workflow
@@ -127,15 +146,18 @@ Tool Execution → State Update → Next Iteration
 ---
 
 ### Exercise 2: Build a Custom LangChain Tool
+
 **Objective**: Create a comprehensive text analysis tool using LangChain
 
 **Challenge**:
+
 - Create a `@tool` decorated function called `text_analyzer`
 - Analyze word count, character count (with/without spaces), sentence count
 - Return results in a structured JSON format
 - Test with both simple and complex text inputs
 
 **Skills Practiced**:
+
 - LangChain tool creation with proper docstrings
 - Text processing and analysis techniques
 - Structured output formatting
@@ -147,15 +169,18 @@ Tool Execution → State Update → Next Iteration
 ---
 
 ### Exercise 3: Multi-Tool Agent Composition
+
 **Objective**: Build a LangGraph agent that combines mathematical and text analysis capabilities
 
 **Challenge**:
+
 - Implement missing math tools: `subtract`, `divide`, `calculate_percentage`, `find_average`
 - Add your text analyzer from Exercise 2
 - Create an agent that can handle complex queries requiring multiple tools
 - Test with queries like: "Analyze 'Hello World', then calculate 50% of the character count"
 
 **Skills Practiced**:
+
 - Multi-tool agent orchestration
 - Complex workflow reasoning
 - Tool composition patterns
@@ -167,15 +192,18 @@ Tool Execution → State Update → Next Iteration
 ---
 
 ### Exercise 4: Error Handling and Edge Cases
+
 **Objective**: Make your tools robust with proper error handling
 
 **Challenge**:
+
 - Add proper error handling to all mathematical operations
 - Handle division by zero, invalid inputs, empty text
 - Provide meaningful error messages that help users
 - Test with various edge cases and malformed inputs
 
 **Skills Practiced**:
+
 - Defensive programming techniques
 - User-friendly error messaging
 - Input validation strategies
@@ -184,15 +212,18 @@ Tool Execution → State Update → Next Iteration
 ---
 
 ### Exercise 5: Advanced Agent Behavior
+
 **Objective**: Customize agent behavior with sophisticated prompting
 
 **Challenge**:
+
 - Create specialized agents for different domains (math tutor, writing assistant)
 - Implement different conversation styles and response patterns
 - Add context awareness and conversation memory
 - Experiment with different reasoning approaches
 
 **Skills Practiced**:
+
 - Advanced prompt engineering
 - Agent personality customization
 - Context management strategies
@@ -203,6 +234,7 @@ Tool Execution → State Update → Next Iteration
 ## 🧪 Testing and Validation
 
 ### Verification Steps
+
 1. **Function Correctness**: Verify mathematical operations produce expected results
 2. **Schema Validation**: Ensure OpenAI accepts your function schemas
 3. **Agent Integration**: Test tools work correctly within agent workflows
@@ -210,6 +242,7 @@ Tool Execution → State Update → Next Iteration
 5. **Complex Scenarios**: Test multi-step reasoning capabilities
 
 ### Testing Approach
+
 ```bash
 # Test individual functions
 python -c "from your_script import your_function; print(your_function(test_args))"
@@ -224,16 +257,19 @@ python your_script.py
 ## 📈 Learning Path Progression
 
 ### Beginner Level
+
 - Complete exercises 1-2
 - Focus on understanding individual tool creation
 - Master function calling and schema design
 
 ### Intermediate Level
+
 - Complete exercises 3-4
 - Build multi-tool workflows
 - Implement robust error handling
 
 ### Advanced Level
+
 - Complete exercise 5 and extensions
 - Design custom agent architectures
 - Experiment with complex reasoning patterns
@@ -241,6 +277,7 @@ python your_script.py
 ## 🎓 Success Criteria
 
 You've mastered this module when you can:
+
 - ✅ Create OpenAI functions with proper schemas
 - ✅ Build LangChain tools with the `@tool` decorator
 - ✅ Orchestrate multi-tool agents with LangGraph
@@ -251,6 +288,7 @@ You've mastered this module when you can:
 ## 🔗 Next Steps
 
 After mastering these concepts, you'll be ready for:
+
 - **Module 2: Complex Agents** - Advanced LangGraph patterns and workflows
 - **Module 3: Multi-Agent Systems** - Agent coordination and collaboration
 - **Production Applications** - Scaling agents for real-world deployment
@@ -258,6 +296,7 @@ After mastering these concepts, you'll be ready for:
 ## 🤝 Educational Philosophy
 
 This module follows proven educational principles:
+
 - **Progressive Complexity**: Each example builds on previous concepts
 - **Hands-On Practice**: Exercises reinforce theoretical knowledge
 - **Real-World Relevance**: Examples use practical scenarios and APIs
@@ -268,4 +307,5 @@ This module follows proven educational principles:
 
 **Happy Learning!** 🎉
 
-Experiment freely with the examples, tackle the exercises at your own pace, and don't hesitate to modify the code to explore different scenarios and deepen your understanding.
+Experiment freely with the examples, tackle the exercises at your own pace, and don't hesitate to modify the code to
+explore different scenarios and deepen your understanding.
