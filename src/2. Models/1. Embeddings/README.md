@@ -59,9 +59,8 @@ extended with a **t-SNE visualization** (section 5b) for comparison with PCA.
 ### Prerequisites
 
 - Python 3.13+
-- Azure OpenAI resource with a deployed `text-embedding-3-small` model
-  (
-  see [Azure AI Foundry docs](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/create-resource?pivots=web-portal))
+- Azure OpenAI resource with a deployed `text-embedding-3-small` model (see
+  [Azure AI Foundry docs](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/create-resource?pivots=web-portal))
 
 ### Setup
 
