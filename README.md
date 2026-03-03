@@ -14,13 +14,13 @@ professor Wodecki. The original repository can be found [here](https://github.co
 
 ---
 
-If you need some help, notice any bugs or come up with possible improvements, feel free to reach out to me and/or create
-a pull request.
+Final project assignment was part of the course and can be found as a separate
+repository [here](https://github.com/itischrisd/TalentMatchAI).
 
 ---
 
-Final project assignment was part of the course and can be found as a separate
-repository [here](https://github.com/itischrisd/TalentMatchAI).
+If you need some help, notice any bugs or come up with possible improvements, feel free to reach out to me and/or create
+a pull request.
 
 ---
 
